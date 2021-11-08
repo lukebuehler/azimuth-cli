@@ -1,0 +1,27 @@
+{
+  "name": "azimuth-cli",
+  "version": "1.0.0",
+  "description": "Urbit Bridge for the command line",
+  "main": "index.js",
+  "bin": 
+  { 
+    "azimuth-cli": "cli.js",
+    "az": "cli.js"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lukebuehler/azimuth-cli.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/lukebuehler/azimuth-cli/issues"
+  },
+  "homepage": "https://github.com/lukebuehler/azimuth-cli#readme",
+  "dependencies": {
+    "yargs": "^17.2.1"
+  }
+}
