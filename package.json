@@ -3,8 +3,7 @@
   "version": "1.0.0",
   "description": "Urbit Bridge for the command line",
   "main": "index.js",
-  "bin": 
-  { 
+  "bin": {
     "azimuth-cli": "cli.js",
     "az": "cli.js"
   },
@@ -22,6 +21,10 @@
   },
   "homepage": "https://github.com/lukebuehler/azimuth-cli#readme",
   "dependencies": {
+    "azimuth-js": "file:../azimuth-js",
+    "chalk": "^4.1.2",
+    "urbit-ob": "^5.0.1",
+    "web3": "^1.6.0",
     "yargs": "^17.2.1"
   }
 }
