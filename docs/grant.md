@@ -86,18 +86,32 @@ The first milestone is to create the whole CLI framework and implement the first
 
 Deliverables:
 
-- Node.JS project and CLI framework (based on yargs)
+- (DONE) Node.JS project and CLI framework (based on yargs)
 - Deployable npm package
 - Work directory framework
 - Extract relevant code from Bridge, for the time being, copied to the CLI repo
 - Master ticket and Arvo key generation
-- List command
+- (IN PROG) List command
 - Spawn command
 - Network Key command
 - Management Proxy command
 - Transfer command
+- Basic Tests
 - Document the project
 - Document usage, give usage examples
+
+How should it work?
+
+1) Generate
+ a) generate spawn list (e.g. random)
+ b) generate master tickets (optional)
+ c) generate arvo key (from master ticket or from seed)
+ d) generate random seed
+
+2) Spawn from spawnlist (file or input list) to an address
+
+3) Set network keys from seed or from master tickets
+   
 
 ### Milestone 2 - Vetting and Second Phase of CLI
 
