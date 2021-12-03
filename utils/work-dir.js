@@ -121,6 +121,19 @@ function writeFile(workDir, fileName, contents)
   return filePath;
 }
 
+/**
+ * Reads the lines of a file into an array.
+ * @param {String} workDir - The work directory.
+ * @param {String} fileName - The name of the file.
+ * @returns {Array} An array containing the lines.
+ */
+function readLines(workDir, fileName)
+{
+  const filePath = path.resolve(workDir, fileName);
+  const array = fs.readFileSync(filePath).toString().split(EOL);
+  return array;
+}
+
 
 module.exports = {
   resolveTilde,
@@ -128,6 +141,7 @@ module.exports = {
   ensureWorkDir,
   fileExists,
   ensureFileExists,
-  writeFile
+  writeFile,
+  readLines
 }
 

@@ -16,8 +16,9 @@ exports.builder = (yargs) =>{
     default: 1,
     type: 'number',
   });
-  yargs.option('file-name',{
-    describe: 'The file name of the spawn list.',
+  yargs.option('output',{
+    alias: 'o',
+    describe: 'The output file name of the spawn list.',
     default: 'spawn-list.txt',
     type: 'string',
   });
@@ -40,7 +41,7 @@ exports.handler = async function (argv)
   const point = validate.point(argv.point, true);
   const workDir = wd.ensureWorkDir(argv.workDir);
  
-  if(wd.fileExists(workDir, argv.fileName) && !argv.force)
+  if(wd.fileExists(workDir, argv.output) && !argv.force)
   {
     console.log('Spawn list file already exists, will not recreate it.');
     return;
@@ -52,7 +53,7 @@ exports.handler = async function (argv)
   var spawnList = pickChildPoints(childPoints, argv.count, argv.pick);
   var spawnListPatp = _.map(spawnList, p => ob.patp(p));
 
-  const filePath = wd.writeFile(workDir, argv.fileName, spawnListPatp);
+  const filePath = wd.writeFile(workDir, argv.output, spawnListPatp);
   console.log(`Spawn list for ${spawnList.length} point(s) written to ${filePath}`)
 }
 
