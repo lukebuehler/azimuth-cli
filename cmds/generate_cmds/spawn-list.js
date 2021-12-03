@@ -1,53 +1,71 @@
 const ob = require('urbit-ob')
 const ajs = require('azimuth-js')
+const _ = require('lodash')
+const ajsHelpers = require('../../utils/azimuth-helpers')
 const context = require('../../cli-context')
-const wd = require('../../utils/work-dir')
 const validate = require('../../utils/validate')
+const wd = require('../../utils/work-dir')
 
 exports.command = 'spawn-list <point>'
-exports.desc = 'Create a list of child points to spawn from <point>.'
+exports.desc = 'Create a list of child points to spawn from <point>. If the file already exists, this command will be a no-op.'
 exports.builder = (yargs) =>{
-  yargs.demandOption('d')
+  yargs.demandOption('d');
+  yargs.option('count',{
+    alias: 'c',
+    describe: 'How many child points to add to the list.',
+    default: 1,
+    type: 'number',
+  });
+  yargs.option('file-name',{
+    describe: 'The file name of the spawn list.',
+    default: 'spawn-list.txt',
+    type: 'string',
+  });
+  yargs.option('force',{
+    alias: 'f',
+    describe: 'Force override the file if it already exists.',
+    default: false,
+    type: 'boolean',
+  });
+  yargs.option('pick',{
+    choices: ['random', 'first', 'last'],
+    describe: 'How to pick the child points from the entire list of unspawned child points.',
+    default: 'random',
+    type: 'string',
+  });
 }
 
-exports.handler = async function (argv) {
+exports.handler = async function (argv) 
+{
   const point = validate.point(argv.point, true);
   const workDir = wd.ensureWorkDir(argv.workDir);
-  console.log('work dir is: '+workDir);
-  const ctx = await context.createContext(argv);
-  //await listChildPoints(ctx, point);
-}
-
-async function listChildPoints(ctx, point)
-{
-  const childPoints = await getUnspawnedChildren(ctx.contracts, point);
-  console.log(`listing ${childPoints.length} unspawned children under ${ob.patp(point)} (${point}):`);
-  for(const p of childPoints)
+ 
+  if(wd.fileExists(workDir, argv.fileName) && !argv.force)
   {
-    const patp = ob.patp(p);
-    const isSpawned = false;
-    console.log(`${patp}, ${p}, ${isSpawned}`);
+    console.log('Spawn list file already exists, will not recreate it.');
+    return;
+  }
+
+  const ctx = await context.createContext(argv);
+  var childPoints = await ajsHelpers.getUnspawnedChildren(ctx.contracts, point);
+
+  var spawnList = pickChildPoints(childPoints, argv.count, argv.pick);
+  var spawnListPatp = _.map(spawnList, p => ob.patp(p));
+
+  const filePath = wd.writeFile(workDir, argv.fileName, spawnListPatp);
+  console.log(`Spawn list for ${spawnList.length} point(s) written to ${filePath}`)
+}
+
+function pickChildPoints(childPoints, count, pick){
+  switch(pick)
+  {
+    case 'first':
+      return childPoints.slice(0, count);
+    case 'last':
+      return childPoints.slice(count*-1);
+    case 'random':
+    default:
+      return _.sampleSize(childPoints, count);
   }
 }
 
-//this function is copied here from azimuth-js
-//here is the issue: https://github.com/urbit/azimuth-js/issues/80
-async function getUnspawnedChildren(contracts, point) {
-  let size = ajs.azimuth.getPointSize(point);
-  if (size >= ajs.azimuth.PointSize.Planet) {
-    return [];
-  }
-  //this is an array of strings (not sure why, it shouldn't be)
-  let spawned = await ajs.azimuth.getSpawned(contracts, point);
-  // console.log(spawned);
-  let unspawned = [];
-  let childSpace = (size === ajs.azimuth.PointSize.Galaxy) ? 0x100 : 0x10000;
-  for (let i = 1; i < childSpace; i++) {
-    let child = point + (i*childSpace);
-    //then this comparison fails unless child is cast to string
-    if (spawned.indexOf(child.toString()) < 0) {
-      unspawned.push(child);
-    }
-  }
-  return unspawned;
-}
