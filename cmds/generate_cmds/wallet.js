@@ -2,8 +2,7 @@ const ob = require('urbit-ob')
 const kg = require('urbit-key-generation');
 const ticket = require('up8-ticket');
 const _ = require('lodash')
-const validate = require('../../utils/validate')
-const wd = require('../../utils/work-dir')
+const {files, validate} = require('../../utils')
 
 exports.command = 'wallet'
 exports.desc = 'Generates Urbit HD wallets as JSON files for a set of points.'
@@ -16,7 +15,7 @@ exports.builder = (yargs) =>{
     conflicts: 'points'
   });
   yargs.option('points',{
-    alias: 'p',
+    alias: ['p', 'point'],
     describe: 'One or more points to generate a wallet for, can be p or patp.',
     type: 'array',
     conflicts: 'file'
@@ -39,10 +38,9 @@ exports.builder = (yargs) =>{
 
 exports.handler = async function (argv) 
 {
-  const workDir = wd.ensureWorkDir(argv.workDir);
-
+  const workDir = files.ensureWorkDir(argv.workDir);
   //parse the points
-  const pointsRaw = argv.points ?? wd.readLines(workDir, argv.file);
+  const pointsRaw = argv.points ?? files.readLines(workDir, argv.file);
   let points = _(pointsRaw)
     .map(point => validate.point(point, false))
     .reject(_.isNull)
@@ -74,7 +72,7 @@ exports.handler = async function (argv)
         boot: argv.generateNetworkKeys,
         revision: DEFAULT_REVISION
       });
-      const file = wd.writeFile(workDir, walletFileName, wallet);
+      const file = files.writeFile(workDir, walletFileName, wallet);
       console.log(`Wrote wallet file to: ${file}`);
     }
     else{

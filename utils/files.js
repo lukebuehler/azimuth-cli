@@ -1,6 +1,6 @@
 const fs = require("fs");
 const path = require("path");
-const {EOL} = require('os');
+const os = require('os');
 const chalk = require('chalk')
 
 function exitBecauseInvalid(paramName, msg){
@@ -17,14 +17,13 @@ function exitBecauseInvalid(paramName, msg){
  * @return {string}          '/home/bob/GitHub/Repo/file.png'
  */
  function resolveTilde (filePath) {
-  const os = require('os');
   if (!filePath || typeof(filePath) !== 'string') {
     return '';
   }
 
   // '~/folder/path' or '~' not '~alias/folder/path'
   if (filePath.startsWith('~/') || filePath === '~') {
-    return filePath.replace('~', os.homedir());
+    return path.resolve(os.homedir(), filePath.substr(1));
   }
 
   return filePath;
@@ -106,7 +105,7 @@ function writeFile(workDir, fileName, contents)
 
   let toWrite = contents;
   if(Array.isArray(contents)){
-    toWrite = contents.join(EOL);
+    toWrite = contents.join(os.EOL);
   }
   else if(typeof contents === 'object'){
     toWrite = JSON.stringify(contents, null, 2)
@@ -129,19 +128,46 @@ function writeFile(workDir, fileName, contents)
  */
 function readLines(workDir, fileName)
 {
-  const filePath = path.resolve(workDir, fileName);
-  const array = fs.readFileSync(filePath).toString().split(EOL);
-  return array;
+  const filePath = resolveTilde(path.resolve(workDir, fileName));
+  try {
+    const contents = fs.readFileSync(filePath).toString();
+    const array = contents.split(os.EOL);
+    return array;
+  }
+  catch (err) {
+    console.error(chalk.red(err));
+    process.exit(1);
+  }
 }
 
+/**
+ * Reads a JSON file into an object.
+ * @param {String} workDir - The work directory.
+ * @param {String} fileName - The name of the file.
+ * @returns {Object} The parsed JSON object.
+ */
+function readJsonObject(workDir, fileName)
+{
+  const filePath = resolveTilde(path.resolve(workDir, fileName));
+  try {
+    const contents = fs.readFileSync(filePath).toString();
+    const json = JSON.parse(contents);
+    return json;
+  }
+  catch (err) {
+    console.error(chalk.red(err));
+    process.exit(1);
+  }
+}
 
 module.exports = {
   resolveTilde,
-  getFiles,
   ensureWorkDir,
+  getFiles,
   fileExists,
   ensureFileExists,
   writeFile,
-  readLines
+  readLines,
+  readJsonObject
 }
 

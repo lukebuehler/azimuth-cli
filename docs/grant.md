@@ -88,14 +88,17 @@ Deliverables:
 
 - (DONE) Node.JS project and CLI framework (based on yargs)
 - Deployable npm package
-- Work directory framework
-- Extract relevant code from Bridge, for the time being, copied to the CLI repo
-- Master ticket and Arvo key generation
+- (DONE) Work directory framework
 - (IN PROG) List command
+- (DONE) Generate a spawn list
+- (DONE) Generate Master ticket 
+- Extract relevant code from Bridge, for the time being, copied to the CLI repo
+- Generate Arvo key 
 - Spawn command
 - Network Key command
 - Management Proxy command
 - Transfer command
+- Accept transfer command
 - Basic Tests
 - Document the project
 - Document usage, give usage examples

@@ -1,5 +1,4 @@
 const ajs = require('azimuth-js')
-const Web3 = require('web3')
 
 //this function is copied here from azimuth-js
 //here is the issue: https://github.com/urbit/azimuth-js/issues/80

@@ -62,6 +62,7 @@ function address(address, required)
 }
 
 
+
 module.exports = {
   point,
   address,

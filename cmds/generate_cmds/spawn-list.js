@@ -1,10 +1,6 @@
 const ob = require('urbit-ob')
-const ajs = require('azimuth-js')
 const _ = require('lodash')
-const ajsHelpers = require('../../utils/azimuth-helpers')
-const context = require('../../cli-context')
-const validate = require('../../utils/validate')
-const wd = require('../../utils/work-dir')
+const {files, validate, eth, azimuth} = require('../../utils')
 
 exports.command = 'spawn-list <point>'
 exports.desc = 'Create a list of child points to spawn from <point>. If the file already exists, this command will be a no-op.'
@@ -39,7 +35,7 @@ exports.builder = (yargs) =>{
 exports.handler = async function (argv) 
 {
   const point = validate.point(argv.point, true);
-  const workDir = wd.ensureWorkDir(argv.workDir);
+  const workDir = files.ensureWorkDir(argv.workDir);
  
   if(wd.fileExists(workDir, argv.output) && !argv.force)
   {
@@ -47,13 +43,13 @@ exports.handler = async function (argv)
     return;
   }
 
-  const ctx = await context.createContext(argv);
-  var childPoints = await ajsHelpers.getUnspawnedChildren(ctx.contracts, point);
+  const ctx = await eth.createContext(argv);
+  var childPoints = await azimuth.getUnspawnedChildren(ctx.contracts, point);
 
   var spawnList = pickChildPoints(childPoints, argv.count, argv.pick);
   var spawnListPatp = _.map(spawnList, p => ob.patp(p));
 
-  const filePath = wd.writeFile(workDir, argv.output, spawnListPatp);
+  const filePath = files.writeFile(workDir, argv.output, spawnListPatp);
   console.log(`Spawn list for ${spawnList.length} point(s) written to ${filePath}`)
 }
 
