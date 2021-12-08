@@ -11,12 +11,6 @@ require('yargs')
   .help()
   .argv
 
-
-function ensureDefaultConfigFile(){
-  //todo: use a standard location for this and generate if the file does not exist
-  return "~/dev/azimuth-cli/cli-config.json";
-}
-
 function getUniversalOptions()
 {
   return{
@@ -34,7 +28,7 @@ function getUniversalOptions()
     },
     'config-file':{
       describe: 'What config file to use.',
-      default: ensureDefaultConfigFile(),
+      default: files.ensureDefaultConfigFilePath(),
       type: 'string',
     },
   }

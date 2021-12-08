@@ -56,7 +56,7 @@ exports.handler = async function (argv)
   for (const p of points) {
     const patp = ob.patp(p);
     const walletFileName = patp.substring(1)+'-wallet.json';
-    if(!wd.fileExists(workDir, walletFileName))
+    if(!files.fileExists(workDir, walletFileName))
     {
       console.log(`Generating master ticket for ${patp}...`);
       //There are three default bite sizes for UP8 tickets, 64, 128, and 384, usually corresponding to planets, stars, and galaxies, but this is not required.

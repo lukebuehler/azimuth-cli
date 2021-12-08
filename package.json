@@ -21,6 +21,7 @@
   },
   "homepage": "https://github.com/lukebuehler/azimuth-cli#readme",
   "dependencies": {
+    "axios": "^0.24.0",
     "azimuth-js": "file:../azimuth-js",
     "chalk": "^4.1.2",
     "crypto": "^1.0.1",

@@ -31,10 +31,11 @@ exports.handler = async function (argv)
   const workDir = files.ensureWorkDir(argv.workDir);
   const targetAddress = validate.address(argv.address, true);
   const privateKey = eth.getPrivateKey(argv);
-  const ethAccount = eth.getAccount(privateKey);
+  const ctx = await eth.createContext(argv);
+  const ethAccount = eth.getAccount(ctx.web3, privateKey);
 
   //parse the points
-  const pointsRaw = argv.points ?? wd.readLines(workDir, argv.file);
+  const pointsRaw = argv.points ?? files.readLines(workDir, argv.file);
   let points = _(pointsRaw)
     .map(point => validate.point(point, false))
     .reject(_.isNull)
@@ -45,36 +46,40 @@ exports.handler = async function (argv)
     process.exit(1);
   }
 
-  //for each point, generate a master ticket and wallet file if the file doesnt already exists
-  console.log(`Will spawn ${points.length} points`);
-  for (const p of points) {
-    tryToSpawnPoint(p, targetAddress, ethAccount)
+  //for each point, try to spawn it to the target address
+  console.log(`Will spawn ${points.length} points to ${targetAddress}`);
+  for (const p of points) 
+  {
+    let patp = ob.patp(p);
+    console.log(`Trying to spawn ${patp} (${p}).`);
+    //the address of the private key must be the parent point owner or spawn proxy
+    var res = await ajs.check.canSpawn(ctx.contracts, p, ethAccount.address);
+    if(!res.result){
+        console.log(`cannot spawn ${patp}: ${res.reason}`);
+        return;
+    }
+
+    //create and send tx
+    let tx = ajs.ecliptic.spawn(ctx.contracts, p, targetAddress);
+    eth.setGas(tx, argv);
+    let signedTx = await eth.signAndSend(ctx.web3, tx, privateKey);
+    let receipt =  await eth.waitForTransactionReciept(signedTx);
+
+    //save the reciept if the transacation was accepted
+    // status will be false if the blockchain rejected the transaction
+    if(reciept && reciept.status){
+      let receiptFileName = patp.substring(1)+'-reciept-spawn.json';
+      files.writeFile(workDir, receiptFileName, reciept);
+    }
+    else{
+      console.error("transaction did not succeed.")
+      if(!receipt.logs){
+        console.error(receipt.logs)
+      }
+    }
   }
 }
 
-async function tryToSpawnPoint(point, targetAddress, account)
-{
-    var res = await ajs.check.canSpawn(contracts, point, account.address);
-    if(!res.result){
-        console.log(`cannot spawn point ${point}: ${res.reason}`);
-        return null;
-    }
-
-    // Create and Send Tx
-    let tx = ecliptic.spawn(contracts, point, targetAddress);
-    let signedTx = await eth.setGasAndSignAndSend(tx, pk);
-
-    // Wait to be owner of p
-    while((await azimuth.isOwner(contracts, point, ownerAndTargetAddress)) == false)
-    {
-        console.log(`not yet owner of ${point}, will wait...`);
-        await new Promise(resolve => setTimeout(resolve, 5000));
-    }
-    console.log(`now owner of ${point}.`);
-
-    return await eth.waitForTransactionReciept(signedTx);
-
-}
 
 
 

@@ -31,6 +31,20 @@ exports.builder = function (yargs) {
     return true
   });
 
+  yargs.option('max-fee',{
+    describe: 'The maximum eth gas fee in gwei (e.g. 100) you are willing to pay. Corresponds to web3 maxFeePerGas.',
+    type: 'number',
+  });
+  yargs.option('max-priority-fee',{
+    describe: 'The max tip to pay to the miner in gwei (e.g. 5). Corresponds to web3 maxPriorityFeePerGas.',
+    type: 'number',
+  });
+  yargs.option('gas-limit',{
+    describe: 'The max gas the transaction can cost in gwei (e.g. 100000). Corresponds to web3 gasLimit.',
+    default: 100000,
+    type: 'number',
+  });
+
   return yargs.commandDir('modify_cmds')
 }
 exports.handler = function (argv) {}

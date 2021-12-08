@@ -1,7 +1,7 @@
 const fs = require("fs");
 const path = require("path");
 const os = require('os');
-const chalk = require('chalk')
+const chalk = require('chalk');
 
 function exitBecauseInvalid(paramName, msg){
   let errorMessage = `'${paramName}' is not valid.`
@@ -9,6 +9,21 @@ function exitBecauseInvalid(paramName, msg){
     errorMessage += " "+msg;
   console.error(chalk.red(errorMessage));
   process.exit(1);
+}
+
+function ensureDefaultConfigFilePath(){
+  const azimuthDir = '.azimuth';
+  const cliConfigFile = 'cli-config.json';
+  const azimuthDirPath = path.resolve(os.homedir(), azimuthDir);
+  if(!fs.existsSync(azimuthDirPath)){
+    fs.mkdirSync(azimuthDirPath);
+  }
+  const cliConfigFilePath = path.resolve(azimuthDirPath, cliConfigFile);
+  if(!fs.existsSync(cliConfigFilePath)){
+    let defaultCliConfig = require('../cli-config.json');
+    writeFile('',cliConfigFilePath, defaultCliConfig);
+  }
+  return cliConfigFilePath;
 }
 
 /**
@@ -161,6 +176,7 @@ function readJsonObject(workDir, fileName)
 }
 
 module.exports = {
+  ensureDefaultConfigFilePath,
   resolveTilde,
   ensureWorkDir,
   getFiles,

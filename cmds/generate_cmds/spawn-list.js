@@ -37,7 +37,7 @@ exports.handler = async function (argv)
   const point = validate.point(argv.point, true);
   const workDir = files.ensureWorkDir(argv.workDir);
  
-  if(wd.fileExists(workDir, argv.output) && !argv.force)
+  if(files.fileExists(workDir, argv.output) && !argv.force)
   {
     console.log('Spawn list file already exists, will not recreate it.');
     return;

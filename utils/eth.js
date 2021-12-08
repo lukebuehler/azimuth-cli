@@ -67,56 +67,40 @@ async function getPrivateKey(argv){
 }
 
 //returns: https://web3js.readthedocs.io/en/v1.2.0/web3-eth-accounts.html#privatekeytoaccount
-async function getAccount(privateKey){
-  return Accounts.privateKeyToAccount(privateKey, false);
+async function getAccount(web3, privateKey){
+  return web3.eth.accounts.privateKeyToAccount(privateKey, false);
 }
 
 async function getCurrentGasPrices() {
-  //see: https://ethereum.stackexchange.com/questions/1113/can-i-set-the-gas-price-to-whatever-i-want
-  let response = await axios.get('https://ethgasstation.info/json/ethgasAPI.json');
-  let prices = {
-    low: response.data.safeLow/10,
-    medium: response.data.average/10,
-    high: response.data.fast/10
-  };
-  return prices;
+  const axios = require('axios');
+  let response = await axios.get('https://api.etherscan.io/api?module=gastracker&action=gasoracle');
+  return response.data.result;
 }
 
-async function actualNetworkFee() {
-  return new Promise(async (resolve) => {
-    let gasPrices = await getCurrentGasPrices();
-    let low = parseFloat(((21000 * gasPrices.low) / 1e9).toFixed(8));
-    let medium = parseFloat(((21000 * gasPrices.medium) /  1e9).toFixed(8));
-    let high = parseFloat(((21000 * gasPrices.high) /  1e9).toFixed(8));
-
-    let fee = { low, medium, high };
-    console.log('Ether fee',fee)
-    resolve(fee)
-  })
+function setGas(tx, argv)
+{
+  if(argv.gasLimit)
+  {
+    tx.gasLimit = argv.gasLimit;
+  }
+  if(argv.maxFee)
+  {
+    tx.maxFeePerGas = Web3.utils.toWei(argv.maxFee, 'gwei');
+  }
+  if(argv.maxPriorityFee)
+  {
+    tx.maxPriorityFeePerGas = Web3.utils.toWei(argv.maxPriorityFee, 'gwei');
+  }
 }
 
-async function setGasAndSignAndSend(tx, pk){
+async function signAndSend(web3, tx, pk){
 
   let pkBuffer = Buffer.from(pk, 'hex');
   if(!ajs.utils.isValidPrivate(pkBuffer))
       throw 'pk is not valid';
 
-  tx.gasLimit = web3.utils.toHex(500000); //todo
-  let gasValue = 30000;
-  console.log('set gas to: ' + gasValue);
-  tx.gas = web3.utils.toHex(gasValue); //todo
-  //console.log(JSON.stringify(tx, null, 2));
-
-  let gasPrices = await getCurrentGasPrices();
-  let gasPrice = gasPrices.medium;
-  gasPrice = gasPrice * 1.1; //pay 10% more than avg
-  gasPrice = Math.min(gasPrice, 60); //make sure we dont pay more than the max
-  let gasPriceValue = Math.floor(gasPrice * 1e9); //convert to gwei
-  console.log(`set gas price to: ${gasPrice} (${gasPriceValue} gwei)`);
-  tx.gasPrice = web3.utils.toHex(gasPriceValue);
-
   // Sign and Send Tx
-  let txSigned = await txn.signTransaction(web3, tx, pkBuffer);
+  let txSigned = await ajs.txn.signTransaction(web3, tx, pkBuffer);
   console.log('signed transaction: ' + txSigned.transactionHash);
   //console.log(JSON.stringify(txSigned, null, 2));
   console.log('sending transaction...');
@@ -126,22 +110,31 @@ async function setGasAndSignAndSend(tx, pk){
   return txSigned;
 }
 
-async function waitForTransactionReciept(txSigned)
+async function waitForTransactionReciept(web3, txSigned)
 {
     const transactionHash = txSigned.transactionHash;
     let reciept;
     while(!(reciept = await web3.eth.getTransactionReceipt(transactionHash)))
     {
         console.log(`no transaction reciept yet...`);
-        await new Promise(resolve => setTimeout(resolve, 5000));
+        await new Promise(resolve => setTimeout(resolve, 2500));
     }
     return reciept;
 }
+
+function ensureTransactionReciept(reciept){
+  if(!reciept || !reciept.status){
+
+  }
+}
+
 
 module.exports = {
   createContext,
   getPrivateKey,
   getAccount,
-  setGasAndSignAndSend,
+  getCurrentGasPrices,
+  setGas,
+  signAndSend,
   waitForTransactionReciept
 }
