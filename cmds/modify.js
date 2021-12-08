@@ -41,7 +41,12 @@ exports.builder = function (yargs) {
   });
   yargs.option('gas-limit',{
     describe: 'The max gas the transaction can cost in gwei (e.g. 100000). Corresponds to web3 gasLimit.',
-    default: 100000,
+    default: 500000,
+    type: 'number',
+  });
+  yargs.option('gas',{
+    describe: 'The gas for the transaction (e.g. 30000). Corresponds to web3 gas.',
+    default: 30000,
     type: 'number',
   });
 

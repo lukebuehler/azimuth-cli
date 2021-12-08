@@ -30,7 +30,7 @@ exports.handler = async function (argv)
 {
   const workDir = files.ensureWorkDir(argv.workDir);
   const targetAddress = validate.address(argv.address, true);
-  const privateKey = eth.getPrivateKey(argv);
+  const privateKey = await eth.getPrivateKey(argv);
   const ctx = await eth.createContext(argv);
   const ethAccount = eth.getAccount(ctx.web3, privateKey);
 
@@ -55,29 +55,39 @@ exports.handler = async function (argv)
     //the address of the private key must be the parent point owner or spawn proxy
     var res = await ajs.check.canSpawn(ctx.contracts, p, ethAccount.address);
     if(!res.result){
-        console.log(`cannot spawn ${patp}: ${res.reason}`);
+        console.log(`Cannot spawn ${patp}: ${res.reason}`);
         return;
     }
 
     //create and send tx
     let tx = ajs.ecliptic.spawn(ctx.contracts, p, targetAddress);
     eth.setGas(tx, argv);
-    let signedTx = await eth.signAndSend(ctx.web3, tx, privateKey);
-    let receipt =  await eth.waitForTransactionReciept(signedTx);
-
+    //console.log(JSON.stringify(tx, null, 2));
+    var signedTx = null;
+    try{
+      signedTx = await eth.signAndSend(ctx.web3, tx, privateKey);
+    }
+    catch(err){
+      console.log('Could not send transaction to the blockchain:');
+      console.log(err);
+      process.exit(1);
+    }
+    let receipt = await eth.waitForTransactionReceipt(ctx.web3, signedTx);
     //save the reciept if the transacation was accepted
     // status will be false if the blockchain rejected the transaction
-    if(reciept && reciept.status){
+    if(receipt != null && receipt.status){
       let receiptFileName = patp.substring(1)+'-reciept-spawn.json';
-      files.writeFile(workDir, receiptFileName, reciept);
+      files.writeFile(workDir, receiptFileName, receipt);
+      console.error("Transaction accepted by the blockchain.")
     }
     else{
-      console.error("transaction did not succeed.")
+      console.error("Transaction did not succeed.")
       if(!receipt.logs){
         console.error(receipt.logs)
       }
     }
-  }
+  } //end for each point
+  process.exit(0);
 }
 
 

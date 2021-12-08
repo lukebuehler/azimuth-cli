@@ -37,6 +37,7 @@ async function createContext(argv)
 
 async function getPrivateKey(argv){
   let pk = null;
+  //retrieve the pk depending on the provided arguments
   if(argv.privateKey){
     pk = argv.privateKey;
   }
@@ -58,6 +59,9 @@ async function getPrivateKey(argv){
     console.error("Could not retrieve private key from the arguments, please provide it.");
     process.exit(1);
   }
+  //remove hex prefix if there is one
+  pk = ajs.utils.stripHexPrefix(pk);
+  //validate
   if(!ajs.utils.isValidPrivate(Buffer.from(pk, 'hex')))
   {
     console.error("Private key is not valid.");
@@ -67,7 +71,7 @@ async function getPrivateKey(argv){
 }
 
 //returns: https://web3js.readthedocs.io/en/v1.2.0/web3-eth-accounts.html#privatekeytoaccount
-async function getAccount(web3, privateKey){
+function getAccount(web3, privateKey){
   return web3.eth.accounts.privateKeyToAccount(privateKey, false);
 }
 
@@ -79,17 +83,21 @@ async function getCurrentGasPrices() {
 
 function setGas(tx, argv)
 {
+  if(argv.gas)
+  {
+    tx.gas = argv.gas; //in gwei
+  }
   if(argv.gasLimit)
   {
-    tx.gasLimit = argv.gasLimit;
+    tx.gasLimit = argv.gasLimit; //in gwei
   }
   if(argv.maxFee)
   {
-    tx.maxFeePerGas = Web3.utils.toWei(argv.maxFee, 'gwei');
+    tx.maxFeePerGas = Web3.utils.toWei(argv.maxFee, 'gwei'); //in wei
   }
   if(argv.maxPriorityFee)
   {
-    tx.maxPriorityFeePerGas = Web3.utils.toWei(argv.maxPriorityFee, 'gwei');
+    tx.maxPriorityFeePerGas = Web3.utils.toWei(argv.maxPriorityFee, 'gwei'); //in wei
   }
 }
 
@@ -104,22 +112,22 @@ async function signAndSend(web3, tx, pk){
   console.log('signed transaction: ' + txSigned.transactionHash);
   //console.log(JSON.stringify(txSigned, null, 2));
   console.log('sending transaction...');
-  await txn.sendSignedTransaction(web3, txSigned);
+  await ajs.txn.sendSignedTransaction(web3, txSigned);
   console.log('sent transaction: ' + txSigned.transactionHash);
 
   return txSigned;
 }
 
-async function waitForTransactionReciept(web3, txSigned)
+async function waitForTransactionReceipt(web3, txSigned)
 {
     const transactionHash = txSigned.transactionHash;
-    let reciept;
-    while(!(reciept = await web3.eth.getTransactionReceipt(transactionHash)))
+    let receipt;
+    while(!(receipt = await web3.eth.getTransactionReceipt(transactionHash)))
     {
-        console.log(`no transaction reciept yet...`);
+        console.log(`no transaction receipt yet...`);
         await new Promise(resolve => setTimeout(resolve, 2500));
     }
-    return reciept;
+    return receipt;
 }
 
 function ensureTransactionReciept(reciept){
@@ -136,5 +144,5 @@ module.exports = {
   getCurrentGasPrices,
   setGas,
   signAndSend,
-  waitForTransactionReciept
+  waitForTransactionReceipt
 }
