@@ -94,7 +94,7 @@ Deliverables:
 - (DONE) Generate Master ticket 
 - Extract relevant code from Bridge, for the time being, copied to the CLI repo
 - Generate Arvo key 
-- Spawn command
+- (DONE) Spawn command
 - Network Key command
 - Management Proxy command
 - Transfer command
