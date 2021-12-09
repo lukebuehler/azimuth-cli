@@ -1,4 +1,5 @@
 const ajs = require('azimuth-js')
+const _ = require('lodash')
 
 //this function is copied here from azimuth-js
 //here is the issue: https://github.com/urbit/azimuth-js/issues/80
@@ -27,10 +28,7 @@ async function isManagementProxy(contracts, point, address)
     if(!ajs.utils.isValidAddress(address)) throw 'address not valid';
 
     managedPoints = await ajs.azimuth.getManagerFor(contracts, address);
-    if(_.includes(managedPoints, point.toString())){
-        return true;
-    }
-    return false;
+    return _.includes(managedPoints, point.toString());
 }
 
 module.exports = {

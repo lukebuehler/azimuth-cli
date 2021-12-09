@@ -99,7 +99,7 @@ async function yargsHandler(argv, action, name, checkFunction, modifyFunction)
   process.exit(0);
 }
 
-async function setGasSignSendAndSaveTransaction(ctx, tx, privateKey, argv, workDir, actionName){
+async function setGasSignSendAndSaveTransaction(ctx, tx, privateKey, argv, workDir, patp, actionName){
   eth.setGas(tx, argv);
   //console.log(JSON.stringify(tx, null, 2));
   var signedTx = null;

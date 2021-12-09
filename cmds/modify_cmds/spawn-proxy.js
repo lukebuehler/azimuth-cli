@@ -26,6 +26,12 @@ exports.handler = async function (argv)
     let patp = ob.patp(p);
     console.log(`Trying to set spawn proxy for ${patp} (${p}).`);
     
+    let shipClass = ob.clan(patp);
+    if(shipClass != 'galaxy' && shipClass != 'star'){
+      console.log(`Can only set spawn proxy for galaxies and stars, ${patp} is a ${shipClass}. Will skip it.`);
+      continue;
+    }
+
     let wallet = argv.useWalletFiles ? wallets[p] : null;
     let targetAddress = 
       argv.address != undefined
@@ -33,9 +39,10 @@ exports.handler = async function (argv)
       : argv.useWalletFiles 
       ? wallet.spawn.keys.address :
       null; //fail
-    let targetAddress = validate.address(targetAddress, true);
+    targetAddress = validate.address(targetAddress, true);
 
-    if(ajs.azimuth.getSpawnProxy(ctx.contracts, p) == targetAddress){
+    let currentSpawnProxy = await ajs.azimuth.getSpawnProxy(ctx.contracts, p);
+    if(currentSpawnProxy == targetAddress){
       console.log(`Target address ${targetAddress} is already spawn proxy for ${patp}.`);
       continue;
     }
@@ -48,7 +55,7 @@ exports.handler = async function (argv)
 
     //create and send tx
     let tx = ajs.ecliptic.setSpawnProxy(ctx.contracts, p, targetAddress)
-    await modifyCommon.setGasSignSendAndSaveTransaction(ctx, tx, privateKey, argv, workDir);
+    await modifyCommon.setGasSignSendAndSaveTransaction(ctx, tx, privateKey, argv, workDir, patp, 'spawnproxy');
   } //end for each point
   
   process.exit(0);

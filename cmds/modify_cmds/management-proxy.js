@@ -31,12 +31,12 @@ exports.handler = async function (argv)
       argv.address != undefined
       ? argv.address 
       : argv.useWalletFiles 
-      ? wallet.spawn.keys.address :
+      ? wallet.management.keys.address :
       null; //fail
-    let targetAddress = validate.address(targetAddress, true);
+    targetAddress = validate.address(targetAddress, true);
 
 
-    if(azimuth.isManagementProxy(ctx.contracts, p, targetAddress)){
+    if(await azimuth.isManagementProxy(ctx.contracts, p, targetAddress)){
       console.log(`Target address ${targetAddress} is already mgmt. proxy for ${patp}.`);
       continue;
     }
@@ -49,7 +49,7 @@ exports.handler = async function (argv)
 
     //create and send tx
     let tx = ajs.ecliptic.setManagementProxy(ctx.contracts, p, targetAddress)
-    await modifyCommon.setGasSignSendAndSaveTransaction(ctx, tx, privateKey, argv, workDir);
+    await modifyCommon.setGasSignSendAndSaveTransaction(ctx, tx, privateKey, argv, workDir, patp, 'managementproxy');
   } //end for each point
   
   process.exit(0);

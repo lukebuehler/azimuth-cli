@@ -8,7 +8,7 @@ exports.command = 'spawn'
 exports.desc = 'Spawn one or more points, where the points are patp or p. Can also provide the points to spawn via files. See options.'
 
 exports.builder = function(yargs) {
-  yargs.demandOptiona('address');
+  yargs.demandOption('address');
 }
 
 exports.handler = async function (argv)
@@ -40,7 +40,7 @@ exports.handler = async function (argv)
 
     //create and send tx
     let tx = ajs.ecliptic.spawn(ctx.contracts, p, targetAddress);
-    await modifyCommon.setGasSignSendAndSaveTransaction(ctx, tx, privateKey, argv, workDir);
+    await modifyCommon.setGasSignSendAndSaveTransaction(ctx, tx, privateKey, argv, workDir, patp, 'spawn');
   } //end for each point
   
   //with web3, sometimes the not all promises complete which keeps the process hanging
