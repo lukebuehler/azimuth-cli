@@ -2,57 +2,36 @@ const ob = require('urbit-ob')
 const ajs = require('azimuth-js')
 const _ = require('lodash')
 const {files, validate, eth} = require('../../utils')
+const modifyCommon = require('./common')
 
 exports.command = 'spawn'
 exports.desc = 'Spawn one or more points, where the points are patp or p. Can also provide the points to spawn via files. See options.'
-exports.builder = (yargs) =>{
-  yargs.demandOption('d');
-  yargs.demandOption('a');
 
-  yargs.option('file',{
-    describe: 'A file containing the points to spawn with each point on a separate line, can be p or patp.',
-    type: 'string',
-    conflicts: 'points'
-  });
-  yargs.option('points',{
-    alias: ['p', 'point'],
-    describe: 'One or more points to spawn, can be p or patp.',
-    type: 'array',
-    conflicts: 'file'
-  });
-  yargs.check(argv => {
-    if (!argv.file && !argv.points) throw new Error('You must provide either --file or --points')
-    return true
-  });
+exports.builder = function(yargs) {
+  yargs.demandOptiona('address');
 }
 
-exports.handler = async function (argv) 
+exports.handler = async function (argv)
 {
   const workDir = files.ensureWorkDir(argv.workDir);
-  const targetAddress = validate.address(argv.address, true);
   const privateKey = await eth.getPrivateKey(argv);
   const ctx = await eth.createContext(argv);
   const ethAccount = eth.getAccount(ctx.web3, privateKey);
 
-  //parse the points
-  const pointsRaw = argv.points ?? files.readLines(workDir, argv.file);
-  let points = _(pointsRaw)
-    .map(point => validate.point(point, false))
-    .reject(_.isNull)
-    .value();
+  const wallets = argv.useWalletFiles ? modifyCommon.getWallets(workDir) : null;
+  const points = modifyCommon.getPoints(argv, workDir, wallets);
 
-  if(!points || points.length == 0){
-    console.error('No points provided.');
-    process.exit(1);
-  }
+  //for spawning points, we do not allow it to be spawned directly to the ownership address of the master ticket, even if useWalletFiles is set.
+    // the reason for this is that it would require accepting the transfer, and usually HD wallets do not have any ETH on the ownership address to do that.
+    // so, the best way of spawning is to spwan to an address with eth (usually the same as the ownership of the parent or spawn proxy of parent), so more things can be set, such as the netork key.
+  const targetAddress = validate.address(argv.address, true);
 
-  //for each point, try to spawn it to the target address
-  console.log(`Will spawn ${points.length} points to ${targetAddress}`);
+  console.log(`Will spawn ${points.length} points`);
   for (const p of points) 
   {
     let patp = ob.patp(p);
     console.log(`Trying to spawn ${patp} (${p}).`);
-    //the address of the private key must be the parent point owner or spawn proxy
+
     var res = await ajs.check.canSpawn(ctx.contracts, p, ethAccount.address);
     if(!res.result){
         console.log(`Cannot spawn ${patp}: ${res.reason}`);
@@ -61,34 +40,13 @@ exports.handler = async function (argv)
 
     //create and send tx
     let tx = ajs.ecliptic.spawn(ctx.contracts, p, targetAddress);
-    eth.setGas(tx, argv);
-    //console.log(JSON.stringify(tx, null, 2));
-    var signedTx = null;
-    try{
-      signedTx = await eth.signAndSend(ctx.web3, tx, privateKey);
-    }
-    catch(err){
-      console.log('Could not send transaction to the blockchain:');
-      console.log(err);
-      process.exit(1);
-    }
-    let receipt = await eth.waitForTransactionReceipt(ctx.web3, signedTx);
-    //save the reciept if the transacation was accepted
-    // status will be false if the blockchain rejected the transaction
-    if(receipt != null && receipt.status){
-      let receiptFileName = patp.substring(1)+'-reciept-spawn.json';
-      files.writeFile(workDir, receiptFileName, receipt);
-      console.error("Transaction accepted by the blockchain.")
-    }
-    else{
-      console.error("Transaction did not succeed.")
-      if(!receipt.logs){
-        console.error(receipt.logs)
-      }
-    }
+    await modifyCommon.setGasSignSendAndSaveTransaction(ctx, tx, privateKey, argv, workDir);
   } //end for each point
+  
+  //with web3, sometimes the not all promises complete which keeps the process hanging
+  // since we completed the handler, we can exit
   process.exit(0);
-}
+};
 
 
 

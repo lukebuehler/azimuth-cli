@@ -95,8 +95,9 @@ Deliverables:
 - Extract relevant code from Bridge, for the time being, copied to the CLI repo
 - Generate Arvo key 
 - (DONE) Spawn command
+- (DONE) Spawn proxy command
 - Network Key command
-- Management Proxy command
+- (DONE) Management Proxy command
 - Transfer command
 - Accept transfer command
 - Basic Tests

@@ -22,7 +22,19 @@ async function getUnspawnedChildren(contracts, point) {
   return unspawned;
 }
 
+async function isManagementProxy(contracts, point, address)
+{
+    if(!ajs.utils.isValidAddress(address)) throw 'address not valid';
+
+    managedPoints = await ajs.azimuth.getManagerFor(contracts, address);
+    if(_.includes(managedPoints, point.toString())){
+        return true;
+    }
+    return false;
+}
+
 module.exports = {
-  getUnspawnedChildren
+  getUnspawnedChildren,
+  isManagementProxy
 }
 
