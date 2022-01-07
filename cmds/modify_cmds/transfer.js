@@ -4,10 +4,15 @@ const _ = require('lodash')
 const {files, validate, eth} = require('../../utils')
 const modifyCommon = require('./common')
 
-exports.command = 'spawn-proxy'
-exports.desc = 'Set the spawn proxy of one or more points.'
+exports.command = 'transfer'
+exports.desc = 'Transfer one or more points, either to the wallet address or to the provided target addess.'
 
 exports.builder = function(yargs) {
+  yargs.option('reset-network-key',{
+    describe: 'If the network key should be reset in the process of the transfer. Do not set to true when moving to a HD wallet address.',
+    default: false,
+    type: 'boolean',
+  });
 }
 
 exports.handler = async function (argv)
@@ -20,42 +25,36 @@ exports.handler = async function (argv)
   const wallets = argv.useWalletFiles ? modifyCommon.getWallets(workDir) : null;
   const points = modifyCommon.getPoints(argv, workDir, wallets);
 
-  console.log(`Will set spawn proxy for ${points.length} points`);
+  console.log(`Will transfer ${points.length} points`);
   for (const p of points) 
   {
     let patp = ob.patp(p);
-    console.log(`Trying to set spawn proxy for ${patp} (${p}).`);
+    console.log(`Trying to transfer ${patp} (${p}).`);
     
-    let shipClass = ob.clan(patp);
-    if(shipClass != 'galaxy' && shipClass != 'star'){
-      console.log(`Can only set spawn proxy for galaxies and stars, ${patp} is a ${shipClass}. Will skip it.`);
-      continue;
-    }
-
     let wallet = argv.useWalletFiles ? wallets[patp] : null;
     let targetAddress = 
       argv.address != undefined
       ? argv.address 
       : argv.useWalletFiles 
-      ? wallet.spawn.keys.address :
+      ? wallet.ownership.keys.address :
       null; //fail
     targetAddress = validate.address(targetAddress, true);
 
-    let currentSpawnProxy = await ajs.azimuth.getSpawnProxy(ctx.contracts, p);
-    if(currentSpawnProxy == targetAddress){
-      console.log(`Target address ${targetAddress} is already spawn proxy for ${patp}.`);
+    let isOwner = ajs.azimuth.isOwner(ctx.contracts, p, targetAddress);
+    if(isOwner){
+      console.log(`Target address ${targetAddress} is already owner of ${patp}.`);
       continue;
     }
 
-    var res = await ajs.check.canSetSpawnProxy(ctx.contracts, p, ethAccount.address);
+    var res = await ajs.check.canTransferPoint(ctx.contracts, p, ethAccount.address, targetAddress);
     if(!res.result){
-        console.log(`Cannot set spawn proxy for ${patp}: ${res.reason}`);
+        console.log(`Cannot transfer ${patp}: ${res.reason}`);
         continue;
     }
 
     //create and send tx
-    let tx = ajs.ecliptic.setSpawnProxy(ctx.contracts, p, targetAddress)
-    await modifyCommon.setGasSignSendAndSaveTransaction(ctx, tx, privateKey, argv, workDir, patp, 'spawnproxy');
+    let tx = ajs.ecliptic.transferPoint(ctx.contracts, p, targetAddress, argv.resetNetworkKey);
+    await modifyCommon.setGasSignSendAndSaveTransaction(ctx, tx, privateKey, argv, workDir, patp, 'transfer');
   } //end for each point
   
   process.exit(0);

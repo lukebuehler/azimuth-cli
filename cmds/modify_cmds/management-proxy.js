@@ -26,7 +26,7 @@ exports.handler = async function (argv)
     let patp = ob.patp(p);
     console.log(`Trying to set mgmt. proxy for ${patp} (${p}).`);
 
-    let wallet = argv.useWalletFiles ? wallets[p] : null;
+    let wallet = argv.useWalletFiles ? wallets[patp] : null;
     let targetAddress = 
       argv.address != undefined
       ? argv.address 

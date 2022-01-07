@@ -9,8 +9,8 @@ function getWallets(workDir){
   let wallets = {};
   for (const walletFile of walletFiles) 
     {
-      let wallet = files.readJsonObject(walletFile);
-      wallets[wallet.meta.ship] = wallet;
+      let wallet = files.readJsonObject('', walletFile);
+      wallets[wallet.meta.patp] = wallet;
     }
   return wallets;
 }
@@ -37,66 +37,6 @@ function getPoints(argv, workDir, wallets){
     process.exit(1);
   }
   return points;
-}
-
-async function yargsHandler(argv, action, name, checkFunction, modifyFunction)
-{
-  const workDir = files.ensureWorkDir(argv.workDir);
-  const privateKey = await eth.getPrivateKey(argv);
-  const ctx = await eth.createContext(argv);
-  const ethAccount = eth.getAccount(ctx.web3, privateKey);
-
-  const targetAddress = validate.address(argv.address, true);
-
-  const wallets = argv.useWalletFiles ? getWallets(workDir) : null;
-  const points = getPoints(argv, workDir, wallets);
-
-  //for each point, try to spawn it to the target address
-  console.log(`Will ${action} ${points.length} points`);
-  for (const p of points) 
-  {
-    let patp = ob.patp(p);
-    console.log(`Trying to ${action} ${patp} (${p}).`);
-
-    var res = await checkFunction(ctx.contracts, p, ethAccount.address);
-    if(!res.result){
-        console.log(`Cannot ${action} ${patp}: ${res.reason}`);
-        return;
-    }
-
-    //create and send tx
-    let wallet = argv.useWalletFiles ? wallets[p] : null;
-    let tx = modifyFunction(ctx.contracts, p, argv, wallet);
-    eth.setGas(tx, argv);
-    //console.log(JSON.stringify(tx, null, 2));
-    var signedTx = null;
-    try{
-      signedTx = await eth.signAndSend(ctx.web3, tx, privateKey);
-    }
-    catch(err){
-      console.log('Could not send transaction to the blockchain:');
-      console.log(err);
-      process.exit(1);
-    }
-    let receipt = await eth.waitForTransactionReceipt(ctx.web3, signedTx);
-    //save the reciept if the transacation was accepted
-    // status will be false if the blockchain rejected the transaction
-    if(receipt != null && receipt.status){
-      let receiptFileName = patp.substring(1)+`-reciept-${name}.json`;
-      files.writeFile(workDir, receiptFileName, receipt);
-      console.error("Transaction accepted by the blockchain.")
-    }
-    else{
-      console.error("Transaction did not succeed.")
-      if(!receipt.logs){
-        console.error(receipt.logs)
-      }
-    }
-  } //end for each point
-  
-  //with web3, sometimes the not all promises complete which keeps the process hanging
-  // since we completed the handler, we can exit
-  process.exit(0);
 }
 
 async function setGasSignSendAndSaveTransaction(ctx, tx, privateKey, argv, workDir, patp, actionName){
