@@ -104,19 +104,6 @@ Deliverables:
 - Document the project
 - Document usage, give usage examples
 
-How should it work?
-
-1) Generate
- a) generate spawn list (e.g. random)
- b) generate master tickets (optional)
- c) generate arvo key (from master ticket or from seed)
- d) generate random seed
-
-2) Spawn from spawnlist (file or input list) to an address
-
-3) Set network keys from seed or from master tickets
-   
-
 ### Milestone 2 - Vetting and Second Phase of CLI
 
 Expected Completion: 1 month
@@ -129,7 +116,7 @@ Deliverables:
 
 - Merge high risk code (e.g., anything related to cryptography) upstream to Urbit org repositories, focusing on making as many CLI functions also usable as a library.
 - Possibly move the CLI project under the Urbit org
-- Ethereum Gas handling and configuration, allowing the automation of on chain transactions at a low cost.
+- (DONE) Ethereum Gas handling and configuration, allowing the automation of on chain transactions at a low cost.
 - Report generation command.
 
 ### Milestone 3 - Layer 2 Support

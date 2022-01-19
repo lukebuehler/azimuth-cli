@@ -1,6 +1,20 @@
 const ajs = require('azimuth-js')
 const _ = require('lodash')
 
+function getChildren(point) {
+  let size = ajs.azimuth.getPointSize(point);
+  if (size >= ajs.azimuth.PointSize.Planet) {
+    return [];
+  }
+  let childPoints = [];
+  let childSpace = (size === ajs.azimuth.PointSize.Galaxy) ? 0x100 : 0x10000;
+  for (let i = 1; i < childSpace; i++) {
+    let child = point + (i*childSpace);
+    childPoints.push(child);
+  }
+  return childPoints;
+}
+
 //this function is copied here from azimuth-js
 //here is the issue: https://github.com/urbit/azimuth-js/issues/80
 async function getUnspawnedChildren(contracts, point) {
@@ -32,6 +46,7 @@ async function isManagementProxy(contracts, point, address)
 }
 
 module.exports = {
+  getChildren,
   getUnspawnedChildren,
   isManagementProxy
 }

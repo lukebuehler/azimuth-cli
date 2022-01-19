@@ -1,27 +1,45 @@
 const ob = require('urbit-ob')
+const ajs = require('azimuth-js')
 const {validate, eth, azimuth} = require('../../utils')
 
 exports.command = 'children <point>'
-exports.desc = 'List children for <point>, where <point> is patp or p.'
+exports.desc = 'List all children for <point>, where <point> is patp or p.'
 exports.builder = (yargs) =>{
-  //yargs.demandOption('point')
+  yargs.option('unspawned',{
+    alias: 'u',
+    describe: 'Only include unspawned points.',
+    type: 'boolean',
+    conflicts: 'spawned'
+  });
+  yargs.option('spawned',{
+    alias: 's',
+    describe: 'Only include spawned points.',
+    type: 'boolean',
+    conflicts: 'unspawned'
+  });
 }
 
 exports.handler = async function (argv) {
   const point = validate.point(argv.point, true);
   const ctx = await eth.createContext(argv);
-  await listChildPoints(ctx, point);
-}
+  
+  let childPoints = null;
+  if(argv.spawned){
+    childPoints = await ajs.azimuth.getSpawned(ctx.contracts, point);
+  }
+  else if(argv.unspawned){
+    childPoints = await azimuth.getUnspawnedChildren(ctx.contracts, point);
+  }
+  else{
+    childPoints = azimuth.getChildren(point);
+  }
 
-async function listChildPoints(ctx, point)
-{
-  const childPoints = await azimuth.getUnspawnedChildren(ctx.contracts, point);
-  console.log(`listing ${childPoints.length} unspawned children under ${ob.patp(point)} (${point}):`);
+  console.log(`listing ${childPoints.length} children under ${ob.patp(point)} (${point}):`);
   for(const p of childPoints)
   {
     const patp = ob.patp(p);
-    const isSpawned = false;
-    console.log(`${patp}, ${p}, ${isSpawned}`);
+    console.log(`${patp} (${p})`);
   }
 }
+
 
