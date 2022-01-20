@@ -4,6 +4,9 @@ const ticket = require('up8-ticket');
 const _ = require('lodash')
 const {files, validate} = require('../../utils')
 
+// needs to be required explicitly for up8-ticket to work
+global.crypto = require('crypto')
+
 exports.command = 'wallet'
 exports.desc = 'Generates Urbit HD wallets as JSON files for a set of points.'
 exports.builder = (yargs) =>{
@@ -79,6 +82,8 @@ exports.handler = async function (argv)
       console.log(`Wallet file ${walletFileName} already exists, will skip generating wallet for ${patp}.`);
     }
   }
+  
+  process.exit(0);
 }
 
 

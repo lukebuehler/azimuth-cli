@@ -4,7 +4,9 @@ The azimuth-cli is "Bridge for the command line." It should allow ship owners an
 ## Install
 
 ### Prerequisites
-Install updated versions of azimuth-solidity and azimuth-js (currently in my repository). They are currently file linked and need to be installed side-by-side.
+Install updated versions of azimuth-js (currently in my repository). They are currently file linked and need to be installed side-by-side.
+
+Also, due to other issues with building the azimuth Solidity contracts, an older version of node might be neeed. We recommend v14.17.4
 
 ### Install
 1) run `npm install`

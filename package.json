@@ -34,7 +34,6 @@
   },
   "devDependencies": {
     "chai": "^4.3.4",
-    "execa": "^6.0.0",
     "mocha": "^9.1.3"
   }
 }

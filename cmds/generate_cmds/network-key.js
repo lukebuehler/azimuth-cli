@@ -5,6 +5,9 @@ const _ = require('lodash')
 const {files, validate} = require('../../utils')
 const modifyCommon = require('../modify_cmds/common')
 
+// needs to be required explicitly for up8-ticket to work
+global.crypto = require('crypto')
+
 exports.command = 'network-key'
 exports.desc = 'Generates network keys and the associated network key file, used for booting the ship.'
 exports.builder = (yargs) =>{

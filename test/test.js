@@ -113,4 +113,12 @@ describe('generate', async function() {
     });
   });
 
+  describe('wallet --points=zod', async function() {
+    this.timeout(10000); //generating wallets takes a bit of time 
+    it('should create a wallet file for the point', async function() {
+      await execCliAndGetLines('generate', 'wallet', '--points=zod', `--work-dir=${testWorkDir}`);
+      assert.isTrue(files.fileExists(testWorkDir, 'zod-wallet.json'));
+    });
+  });
+
 });
