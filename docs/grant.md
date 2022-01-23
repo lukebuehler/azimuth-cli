@@ -100,7 +100,7 @@ Deliverables:
 - (DONE) Management Proxy command
 - (DONE) Transfer command
 - (NOT NEEDED ATM) Accept transfer command
-- Basic Tests
+- (IN PROG) Basic Tests
 - Document the project
 - Document usage, give usage examples
 
@@ -114,7 +114,7 @@ Having a working tool now, the question will be what parts to merge upstream. Al
 
 Deliverables:
 
-- Merge high risk code (e.g., anything related to cryptography) upstream to Urbit org repositories, focusing on making as many CLI functions also usable as a library.
+- (DONE) Merge high risk code (e.g., anything related to cryptography) upstream to Urbit org repositories, focusing on making as many CLI functions also usable as a library.
 - Possibly move the CLI project under the Urbit org
 - (DONE) Ethereum Gas handling and configuration, allowing the automation of on chain transactions at a low cost.
 - Report generation command.

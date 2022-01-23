@@ -5,7 +5,7 @@
   "main": "index.js",
   "bin": {
     "azimuth-cli": "cli.js",
-    "az": "cli.js"
+    "azi": "cli.js"
   },
   "scripts": {
     "test": "mocha"
@@ -21,19 +21,18 @@
   },
   "homepage": "https://github.com/lukebuehler/azimuth-cli#readme",
   "dependencies": {
-    "axios": "^0.24.0",
-    "azimuth-js": "file:../azimuth-js",
+    "axios": "^0.25.0",
+    "azimuth-js": "0.22.2",
     "chalk": "^4.1.2",
-    "crypto": "^1.0.1",
     "lodash": "^4.17.21",
     "up8-ticket": "^0.2.0",
     "urbit-key-generation": "^0.20.1",
     "urbit-ob": "^5.0.1",
-    "web3": "^1.6.0",
-    "yargs": "^17.2.1"
+    "web3": "^1.7.0",
+    "yargs": "^17.3.1"
   },
   "devDependencies": {
     "chai": "^4.3.4",
-    "mocha": "^9.1.3"
+    "mocha": "^9.2.0"
   }
 }
