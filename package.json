@@ -1,6 +1,6 @@
 {
   "name": "azimuth-cli",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "Urbit Bridge for the command line",
   "main": "index.js",
   "bin": {
@@ -14,12 +14,19 @@
     "type": "git",
     "url": "git+https://github.com/lukebuehler/azimuth-cli.git"
   },
-  "author": "",
-  "license": "ISC",
+  "author": "Lukas Buhler",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/lukebuehler/azimuth-cli/issues"
   },
   "homepage": "https://github.com/lukebuehler/azimuth-cli#readme",
+  "keywords": [
+    "azimuth",
+    "ecliptic",
+    "urbit",
+    "urbitID",
+    "cli"
+  ],
   "dependencies": {
     "axios": "^0.25.0",
     "azimuth-js": "0.22.2",
