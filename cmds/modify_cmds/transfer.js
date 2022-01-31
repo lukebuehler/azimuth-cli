@@ -40,11 +40,13 @@ exports.handler = async function (argv)
       null; //fail
     targetAddress = validate.address(targetAddress, true);
 
-    let isOwner = ajs.azimuth.isOwner(ctx.contracts, p, targetAddress);
-    if(isOwner){
-      console.log(`Target address ${targetAddress} is already owner of ${patp}.`);
-      continue;
-    }
+    //TODO: for some reason isOwner always returns true, even if an address is passed which p is not owner of. 
+    // But this is fine for now, because we have the second check: canTransferPoint
+    // let isOwner = ajs.azimuth.isOwner(ctx.contracts, p, targetAddress);
+    // if(isOwner){
+    //   console.log(`Target address ${targetAddress} is already owner of ${patp}.`);
+    //   continue;
+    // }
 
     var res = await ajs.check.canTransferPoint(ctx.contracts, p, ethAccount.address, targetAddress);
     if(!res.result){

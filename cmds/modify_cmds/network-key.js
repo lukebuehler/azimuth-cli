@@ -27,14 +27,21 @@ exports.handler = async function (argv)
     console.log(`Trying to set network key for ${patp} (${p}).`);
 
     //retrieve the network keypair
-    // TODO: support other sources for the netork key pair than a wallet file
     let wallet = argv.useWalletFiles ? wallets[patp] : null;
-    if(!wallet){
-      console.log(`Wallet not found for ${patp}, can only set keys based on walled file.`);
-      continue;
+    const revision = 1; //TODO: support bumping the revision (by looking it up on-chain)
+    const keysFileName = `${patp.substring(1)}-networkkeys-${revision}.json`;
+    
+    let networkKeyPair = null;
+    if(wallet){
+      networkKeyPair = wallet.network.keys;
     }
-    let networkKeyPair = wallet.network.keys;
-
+    else if(files.fileExists(workDir, keysFileName)){
+      networkKeyPair = files.readJsonObject(workDir, keysFileName);
+    }
+    else{
+      console.error(`Could not find network keys for ${patp}: provide them either via wallet or network key file.`);
+      process.exit(1);
+    }
 
     var res = await ajs.check.canConfigureKeys(ctx.contracts, p, ethAccount.address);
     if(!res.result){
@@ -46,8 +53,7 @@ exports.handler = async function (argv)
     var publicCrypt = ajs.utils.addHexPrefix(networkKeyPair.crypt.public);
     var publicAuth = ajs.utils.addHexPrefix(networkKeyPair.auth.public);
 
-    var existingKeys = await ajs.azimuth.getKeys(contracts, point);
-
+    var existingKeys = await ajs.azimuth.getKeys(ctx.contracts, p);
     if(existingKeys.crypt == publicCrypt && existingKeys.auth == publicAuth)
     {
         console.log(`The network key is already set for ${patp}`);

@@ -79,7 +79,7 @@ exports.handler = async function (argv)
       else
       {
         console.log(`${keysFileName} already exists, will not recreate.`);
-        networkKeyPair = files.readJsonObject(workDir, networkKeyPair);
+        networkKeyPair = files.readJsonObject(workDir, keysFileName);
       }
     }
 

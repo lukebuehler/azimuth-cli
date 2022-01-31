@@ -106,6 +106,10 @@ const ac0 = ethUtil.addHexPrefix(pair0.address.toString('hex'));
 const ac1 = ethUtil.addHexPrefix(pair1.address.toString('hex'));
 const ac2 = ethUtil.addHexPrefix(pair2.address.toString('hex'));
 
+console.log('ac0: '+ac0);
+console.log('ac1: '+ac1);
+console.log('ac2: '+ac2);
+
 const pk0 = pair0.privateKey;
 const pk0String = ethUtil.addHexPrefix(pk0.toString('hex'));
 const pk1 = pair1.privateKey;
@@ -126,6 +130,8 @@ let provider  = new Web3.providers.HttpProvider('http://localhost:8545');
 let web3      = new Web3(provider);
 let contracts = ajs.initContracts(web3, contractAddresses);
 
+const someBytes32 = web3.utils.asciiToHex('whatever');
+
 let galaxy       = 0;
 let galaxyPlanet = 65536;
 let star1        = 256;
@@ -136,7 +142,9 @@ let planet1b     = 131328;
 let planet1c     = 196864;
 let planet1d     = 262400;
 
-const modifyBaseArgs = [`--private-key=${pk0String}`, `--address=${ac0}`]
+const modifyBaseArgsFromAc0ToAc0 = [`--private-key=${pk0String}`, `--address=${ac0}`]
+const modifyBaseArgsFromAc0ToAc1 = [`--private-key=${pk0String}`, `--address=${ac1}`]
+const modifyBaseArgsFromAc0ToAc2 = [`--private-key=${pk0String}`, `--address=${ac2}`]
 
 //===================
 // Tests
@@ -154,6 +162,10 @@ it('prepare the environment', async function() {
 
   tx = ecliptic.createGalaxy(contracts, 1, ac0);
   await sendTransaction(web3, tx, pk0);
+
+  //set keys so the galaxy is allowed to spawn
+  // tx = ecliptic.configureKeys(contracts, galaxy, someBytes32, someBytes32, 1, false);
+  // await sendTransaction(web3, tx, pk0);
 
   // galaxy   = await firstUnownedGalaxy(contracts);
   // star1    = star1 + galaxy;
@@ -178,8 +190,7 @@ describe('#list', async function() {
     it('should list all spawned children of zod', async function() {
       let children = await execCliAndGetLines('list', 'children', '0', '--spawned', ...baseArgs);
       children.shift();//starts with a header string
-      expect(children).to.have.lengthOf.at.least(0);
-      expect(children).to.have.lengthOf.at.most(255);
+      expect(children).to.have.lengthOf(0);
     });
   });
 
@@ -187,8 +198,16 @@ describe('#list', async function() {
     it('should list all unspawned children of zod', async function() {
       let children = await execCliAndGetLines('list', 'children', '0', '--unspawned', ...baseArgs);
       children.shift();//starts with a header string
-      expect(children).to.have.lengthOf.at.least(0);
+      expect(children).to.have.lengthOf(255);
       expect(children).to.have.lengthOf.at.most(255);
+    });
+  });
+
+  describe('owner zodAddr', async function() {
+    it('should list owner of two galaxies', async function() {
+      let children = await execCliAndGetLines('list', 'owner', ac0, ...baseArgs);
+      children.shift();//starts with a header string
+      expect(children).to.have.lengthOf(2);
     });
   });
 
@@ -213,28 +232,40 @@ describe('#generate', async function() {
     });
   });
 
-  describe('wallet --points=zod', async function() {
+  describe('network-key --points=zod', async function() {
     this.timeout(10000); //generating wallets takes a bit of time 
-    it('should create a wallet file for the point', async function() {
-      await execCliAndGetLines('generate', 'wallet', '--points=zod', ...baseArgs);
-      assert.isTrue(files.fileExists(testWorkDir, 'zod-wallet.json'));
+    it('should create network keys and network keyfile', async function() {
+      await execCliAndGetLines('generate', 'network-key', '--points=zod', ...baseArgs);
+      assert.isTrue(files.fileExists(testWorkDir, 'zod-networkkeys-1.json'));
+      assert.isTrue(files.fileExists(testWorkDir, 'zod-1.key'));
     });
   });
 
+  describe('wallet --points=marzod', async function() {
+    this.timeout(10000); //generating wallets takes a bit of time 
+    it('should create a wallet file for the point', async function() {
+      await execCliAndGetLines('generate', 'wallet', '--points=marzod', ...baseArgs);
+      assert.isTrue(files.fileExists(testWorkDir, 'marzod-wallet.json'));
+    });
+  });
 });
 
 
 describe('#modify', async function() {
   this.timeout(10000); 
 
-  describe('spawn ', async function() {
-    it('should spawn', async function() {
-      let lines = await execCliAndGetLines('modify', 'spawn', '--points=marzod', ...baseArgs, ...modifyBaseArgs);
-      console.log(lines)
-      //check that the files exists
-      assert.isTrue(files.fileExists(testWorkDir, 'zod-wallet.json'));
+  describe('network-key --points=zod', async function() {
+    it('should set the network keys for zod', async function() {
+      //this also allows us to use zod to spawn further points, only booted points can spawn
+      let lines = await execCliAndGetLines('modify', 'network-key', `--points=${galaxy}`, ...baseArgs, ...modifyBaseArgsFromAc0ToAc0);
+      assert.isTrue(files.fileExists(testWorkDir, 'zod-reciept-networkkey.json'));
+    });
+  });
 
-      //TODO: query azimuth directly and make sure marzod is there.
+  describe('spawn --points=marzod', async function() {
+    it('should spawn the first star under zod', async function() {
+      let lines = await execCliAndGetLines('modify', 'spawn', `--points=${star1}`, ...baseArgs, ...modifyBaseArgsFromAc0ToAc0);
+      assert.isTrue(files.fileExists(testWorkDir, 'marzod-reciept-spawn.json'));
 
       let children = await execCliAndGetLines('list', 'children', 'zod', '--spawned', ...baseArgs);
       children.shift();//starts with a header string
@@ -242,5 +273,30 @@ describe('#modify', async function() {
     });
   });
 
+  describe('management-proxy --points=marzod', async function() {
+    it('should set the management proxy of marzod', async function() {
+      let lines = await execCliAndGetLines('modify', 'management-proxy', `--points=${star1}`, ...baseArgs, ...modifyBaseArgsFromAc0ToAc1);
+      assert.isTrue(files.fileExists(testWorkDir, 'marzod-reciept-managementproxy.json'));
+    });
+  });
+
+  describe('spawn-proxy --points=marzod', async function() {
+    it('should set the spawn proxy of marzod', async function() {
+      let lines = await execCliAndGetLines('modify', 'spawn-proxy', `--points=${star1}`, ...baseArgs, ...modifyBaseArgsFromAc0ToAc1);
+      assert.isTrue(files.fileExists(testWorkDir, 'marzod-reciept-spawnproxy.json'));
+    });
+  });
+
+  describe('transfer --points=marzod', async function() {
+    it('should transfer marzod to acc2', async function() {
+      let lines = await execCliAndGetLines('modify', 'transfer', `--points=${star1}`, ...baseArgs, ...modifyBaseArgsFromAc0ToAc2);
+      assert.isTrue(files.fileExists(testWorkDir, 'marzod-reciept-transfer.json'));
+
+      //ac2 should have one child now
+      let children = await execCliAndGetLines('list', 'owner', ac2, ...baseArgs);
+      children.shift();//starts with a header string
+      expect(children).to.have.lengthOf(1);
+    });
+  });
 
 });

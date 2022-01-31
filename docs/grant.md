@@ -102,7 +102,7 @@ Deliverables:
 - (NOT NEEDED ATM) Accept transfer command
 - (DONE) Able to supply private key via file
 - (DONE) Make mainnet default
-- (IN PROG) Basic Tests
+- (DONE) Basic Tests
 - (DONE) Document the project
 - (DONE) Document usage, give usage examples
 

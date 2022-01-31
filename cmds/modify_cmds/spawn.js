@@ -15,6 +15,7 @@ exports.handler = async function (argv)
 {
   const workDir = files.ensureWorkDir(argv.workDir);
   const privateKey = await eth.getPrivateKey(argv);
+
   const ctx = await eth.createContext(argv);
   const ethAccount = eth.getAccount(ctx.web3, privateKey);
 
