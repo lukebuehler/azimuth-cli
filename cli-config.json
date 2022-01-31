@@ -1,5 +1,5 @@
 {
-  "useMainnet": false,
+  "useMainnet": true,
   "ethProviderRopsten": "https://ropsten.infura.io/v3/f23d3259814348dbb693726415858db8",
   "ethProviderMainnet": "https://mainnet.infura.io/v3/f23d3259814348dbb693726415858db8"
 }

@@ -13,7 +13,7 @@ exports.desc = 'Generates network keys and the associated network key file, used
 exports.builder = (yargs) =>{
   yargs.demandOption('d');
 
-  yargs.option('file',{
+  yargs.option('points-file',{
     describe: 'A file containing the points with each point on a separate line, can be p or patp.',
     type: 'string',
     conflicts: ['points', 'use-wallet-files']
@@ -22,15 +22,15 @@ exports.builder = (yargs) =>{
     alias: ['p', 'point'],
     describe: 'One or more points to generate a wallet for, can be p or patp.',
     type: 'array',
-    conflicts: ['file', 'use-wallet-files']
+    conflicts: ['points-file', 'use-wallet-files']
   });
   yargs.option('use-wallet-files',{
     describe: `Use the wallet JSON files in the current work directory for the points and the network keys, will only generetate the network key file. The wallet will have to have been generated with the --generate-network-keys set to true (default).`,
     type: 'boolean',
-    conflicts: ['file', 'points']
+    conflicts: ['points-file', 'points']
   });
   yargs.check(argv => {
-    if (!argv.file && !argv.points && !argv.useWalletFiles) throw new Error('You must provide either --file, --points, or --use-wallet-files')
+    if (!argv.pointsFile && !argv.points && !argv.useWalletFiles) throw new Error('You must provide either --points-file, --points, or --use-wallet-files')
     return true
   });
 }

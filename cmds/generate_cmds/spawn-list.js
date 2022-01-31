@@ -1,6 +1,8 @@
 const ob = require('urbit-ob')
+const ajs = require('azimuth-js')
 const _ = require('lodash')
-const {files, validate, eth, azimuth} = require('../../utils')
+
+const {files, validate, eth} = require('../../utils')
 
 exports.command = 'spawn-list <point>'
 exports.desc = 'Create a list of child points to spawn from <point>. If the file already exists, this command will be a no-op.'
@@ -44,7 +46,7 @@ exports.handler = async function (argv)
   }
 
   const ctx = await eth.createContext(argv);
-  var childPoints = await azimuth.getUnspawnedChildren(ctx.contracts, point);
+  var childPoints = await ajs.azimuth.getUnspawnedChildren(ctx.contracts, point);
 
   var spawnList = pickChildPoints(childPoints, argv.count, argv.pick);
   var spawnListPatp = _.map(spawnList, p => ob.patp(p));

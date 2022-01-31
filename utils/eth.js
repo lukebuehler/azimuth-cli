@@ -41,14 +41,17 @@ async function getPrivateKey(argv){
   if(argv.privateKey){
     pk = argv.privateKey;
   }
-  else if(argv.wallet){
-    let wallet = files.readJsonObject(argv.wallet);
+  if(argv.privateKeyFile){
+    pk = files.readLines('', argv.privateKeyFile).find(x=>!x);//get the first non-empty line
+  }
+  else if(argv.privateKeyWalletFile){
+    let wallet = files.readJsonObject('', argv.privateKeyWalletFile);
     pk = wallet.ownership.keys.private;
   }
-  else if(argv.ticket){
+  else if(argv.privateKeyTicket){
     const kg = require('urbit-key-generation');
     let wallet = await kg.generateWallet({
-      ticket: argv.wallet,
+      ticket: argv.privateKeyTicket,
       ship: 0, //we just use the wallet code to derrive the pk, ship is not used
       boot: false,
       revision: 1

@@ -12,7 +12,7 @@ exports.desc = 'Generates Urbit HD wallets as JSON files for a set of points.'
 exports.builder = (yargs) =>{
   yargs.demandOption('d');
 
-  yargs.option('file',{
+  yargs.option('points-file',{
     describe: 'A file containing the points with each point on a separate line, can be p or patp.',
     type: 'string',
     conflicts: 'points'
@@ -21,10 +21,10 @@ exports.builder = (yargs) =>{
     alias: ['p', 'point'],
     describe: 'One or more points to generate a wallet for, can be p or patp.',
     type: 'array',
-    conflicts: 'file'
+    conflicts: 'points-file'
   });
   yargs.check(argv => {
-    if (!argv.file && !argv.points) throw new Error('You must provide either --file or --points')
+    if (!argv.pointsFile && !argv.points) throw new Error('You must provide either --points-file or --points')
     return true
   });
   yargs.option('bit-size',{
@@ -43,7 +43,7 @@ exports.handler = async function (argv)
 {
   const workDir = files.ensureWorkDir(argv.workDir);
   //parse the points
-  const pointsRaw = argv.points ?? files.readLines(workDir, argv.file);
+  const pointsRaw = argv.points ?? files.readLines(workDir, argv.pointsFile);
   let points = _(pointsRaw)
     .map(point => validate.point(point, false))
     .reject(_.isNull)

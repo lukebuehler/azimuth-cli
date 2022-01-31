@@ -50,25 +50,20 @@ fs.mkdirSync(testWorkDir, { recursive: true });
 
 console.log('Test work directory is: '+testWorkDir);
 
+const baseArgs = ['--use-mainnet=false', `--work-dir=${testWorkDir}`];
+
 //===================
 // Tests
 //===================
 
 // https://www.chaijs.com/api/bdd/#method_least
 
-describe('version flag', async function() {
-    it('should show the current version', async function() {
-      let version = (await execCliAndGetLines('--version'))[0];
-      expect(version).to.eq('1.0.0');
-  });
-});
 
-
-describe('list', async function() {
+describe('#list', async function() {
 
   describe('children 0', async function() {
     it('should list all children of zod', async function() {
-      let children = await execCliAndGetLines('list', 'children', '0');
+      let children = await execCliAndGetLines('list', 'children', '0', ...baseArgs);
       children.shift();//starts with a header string
       expect(children).to.have.lengthOf(255);
     });
@@ -76,7 +71,7 @@ describe('list', async function() {
 
   describe('children 0 --spawned', async function() {
     it('should list all spawned children of zod', async function() {
-      let children = await execCliAndGetLines('list', 'children', '0', '--spawned');
+      let children = await execCliAndGetLines('list', 'children', '0', '--spawned', ...baseArgs);
       children.shift();//starts with a header string
       expect(children).to.have.lengthOf.at.least(1);
       expect(children).to.have.lengthOf.at.most(255);
@@ -85,7 +80,7 @@ describe('list', async function() {
 
   describe('children 0 --unspawned', async function() {
     it('should list all unspawned children of zod', async function() {
-      let children = await execCliAndGetLines('list', 'children', '0', '--unspawned');
+      let children = await execCliAndGetLines('list', 'children', '0', '--unspawned', ...baseArgs);
       children.shift();//starts with a header string
       expect(children).to.have.lengthOf.at.least(1);
       expect(children).to.have.lengthOf.at.most(255);
@@ -95,18 +90,18 @@ describe('list', async function() {
 });
 
 
-describe('generate', async function() {
+describe('#generate', async function() {
 
   describe('spawn-list zod', async function() {
     it('should create a file, containing child points that can be spawned', async function() {
-      await execCliAndGetLines('generate', 'spawn-list', 'zod', '--force', `--work-dir=${testWorkDir}`);
+      await execCliAndGetLines('generate', 'spawn-list', 'zod', '--force', ...baseArgs);
       assert.isTrue(files.fileExists(testWorkDir, 'spawn-list.txt'));
     });
   });
 
   describe('spawn-list zod --count=10', async function() {
     it('should create a file, containing 10 child points that can be spawned', async function() {
-      await execCliAndGetLines('generate', 'spawn-list', 'zod', '--count=10', '--force', `--work-dir=${testWorkDir}`);
+      await execCliAndGetLines('generate', 'spawn-list', 'zod', '--count=10', '--force', ...baseArgs);
       assert.isTrue(files.fileExists(testWorkDir, 'spawn-list.txt'));
       const spwanList = files.readLines(testWorkDir, 'spawn-list.txt');
       expect(spwanList).to.have.lengthOf(10);
@@ -116,7 +111,7 @@ describe('generate', async function() {
   describe('wallet --points=zod', async function() {
     this.timeout(10000); //generating wallets takes a bit of time 
     it('should create a wallet file for the point', async function() {
-      await execCliAndGetLines('generate', 'wallet', '--points=zod', `--work-dir=${testWorkDir}`);
+      await execCliAndGetLines('generate', 'wallet', '--points=zod', ...baseArgs);
       assert.isTrue(files.fileExists(testWorkDir, 'zod-wallet.json'));
     });
   });

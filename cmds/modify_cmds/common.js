@@ -20,8 +20,8 @@ function getPoints(argv, workDir, wallets){
   if(argv.points){
     pointsRaw = argv.points;
   }
-  else if(argv.file){
-    pointsRaw = files.readLines(workDir, argv.file);
+  else if(argv.pointsFile){
+    pointsRaw = files.readLines(workDir, argv.pointsFile);
   }
   else if(argv.useWalletFiles){
     //wallets is an object with the keys being the p

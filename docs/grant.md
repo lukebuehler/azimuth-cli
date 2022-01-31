@@ -87,7 +87,7 @@ The first milestone is to create the whole CLI framework and implement the first
 Deliverables:
 
 - (DONE) Node.JS project and CLI framework (based on yargs)
-- Deployable npm package
+- (DONE) Deployable npm package
 - (DONE) Work directory framework
 - (DONE) List command
 - (DONE) Generate a spawn list
@@ -100,6 +100,8 @@ Deliverables:
 - (DONE) Management Proxy command
 - (DONE) Transfer command
 - (NOT NEEDED ATM) Accept transfer command
+- (DONE) Able to supply private key via file
+- (DONE) Make mainnet default
 - (IN PROG) Basic Tests
 - Document the project
 - Document usage, give usage examples
@@ -118,6 +120,7 @@ Deliverables:
 - Possibly move the CLI project under the Urbit org
 - (DONE) Ethereum Gas handling and configuration, allowing the automation of on chain transactions at a low cost.
 - Report generation command.
+
 
 ### Milestone 3 - Layer 2 Support
 

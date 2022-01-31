@@ -28,7 +28,7 @@ exports.handler = async function (argv) {
     childPoints = await ajs.azimuth.getSpawned(ctx.contracts, point);
   }
   else if(argv.unspawned){
-    childPoints = await azimuth.getUnspawnedChildren(ctx.contracts, point);
+    childPoints = await ajs.azimuth.getUnspawnedChildren(ctx.contracts, point);
   }
   else{
     childPoints = azimuth.getChildren(point);
