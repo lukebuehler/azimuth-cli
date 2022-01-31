@@ -89,7 +89,7 @@ Deliverables:
 - (DONE) Node.JS project and CLI framework (based on yargs)
 - (DONE) Deployable npm package
 - (DONE) Work directory framework
-- (DONE) List command
+-   (DONE) List command
 - (DONE) Generate a spawn list
 - (DONE) Generate Master ticket 
 - (NOT NEEDED) Extract relevant code from Bridge, for the time being, copied to the CLI repo
@@ -103,8 +103,8 @@ Deliverables:
 - (DONE) Able to supply private key via file
 - (DONE) Make mainnet default
 - (IN PROG) Basic Tests
-- Document the project
-- Document usage, give usage examples
+- (DONE) Document the project
+- (DONE) Document usage, give usage examples
 
 ### Milestone 2 - Vetting and Second Phase of CLI
 

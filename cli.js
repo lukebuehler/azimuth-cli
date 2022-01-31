@@ -20,11 +20,11 @@ function getUniversalOptions()
       default: '.',
       type: 'string',
     },
-    'm':{
-      alias: 'use-mainnet',
-      describe: 'If the Ethereum mainnet should be used.',
-      default: false,
-      type: 'boolean'
+    'eth-provider':{
+      describe: 'What Ethereum provider to use.',
+      default: 'mainnet',
+      choices: ['ganache', 'ropsten', 'mainnet'],
+      type: 'string'
     },
     'config-file':{
       describe: 'What config file to use.',

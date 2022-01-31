@@ -9,7 +9,13 @@ function initWeb3(argv)
   if(argv.useMainnet){
     console.log('! RUNNING ON MAINNET !');
   }
-  let providerUrl = argv.useMainnet ? argv.ethProviderMainnet : argv.ethProviderRopsten;
+  let providerUrl = 
+    argv.ethProvider == 'mainnet' 
+    ? argv.ethProviderMainnet 
+    : argv.ethProvider == 'ropsten' 
+    ? argv.ethProviderRopsten 
+    : argv.ethProviderGanache;
+  
   let provider = new Web3.providers.HttpProvider(providerUrl);
   let web3 = new Web3(provider);
   web3.eth.handleRevert = true;
@@ -18,9 +24,15 @@ function initWeb3(argv)
 
 async function initContracts(argv, web3)
 {
+  const ganacheContract = '0x863d9c2e5c4c133596cfac29d55255f0d0f86381';
   const ropstenContract = ajs.chainDetails.ropsten.azimuth.address;
   const mainnetContract = ajs.chainDetails.mainnet.azimuth.address;
-  var azAddress = argv.useMainnet ? mainnetContract : ropstenContract;
+  var azAddress = 
+    argv.ethProvider == 'mainnet' 
+    ? mainnetContract 
+    : argv.ethProvider == 'ropsten' 
+    ? ropstenContract 
+    : ganacheContract;
   contracts = await ajs.initContractsPartial(web3, azAddress);
   return contracts;
 }
