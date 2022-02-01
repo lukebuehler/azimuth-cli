@@ -300,3 +300,17 @@ describe('#modify', async function() {
   });
 
 });
+
+describe('#generate report', async function() {
+
+  describe('report --points=zod --points=marzod', async function() {
+    it('should generate a report for zod and marzod', async function() {
+      //this also allows us to use zod to spawn further points, only booted points can spawn
+      let lines = await execCliAndGetLines('generate', 'report', `--points=${galaxy}`, `--points=${star1}`, ...baseArgs);
+      assert.isTrue(files.fileExists(testWorkDir, 'report.csv'));
+      const csvLines = files.readLines(testWorkDir, 'report.csv');
+      expect(csvLines).to.have.lengthOf(3);
+    });
+  });
+
+});

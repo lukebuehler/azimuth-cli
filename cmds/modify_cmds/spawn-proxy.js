@@ -1,8 +1,7 @@
 const ob = require('urbit-ob')
 const ajs = require('azimuth-js')
 const _ = require('lodash')
-const {files, validate, eth} = require('../../utils')
-const modifyCommon = require('./common')
+const {files, validate, eth, findPoints} = require('../../utils')
 
 exports.command = 'spawn-proxy'
 exports.desc = 'Set the spawn proxy of one or more points.'
@@ -17,8 +16,8 @@ exports.handler = async function (argv)
   const ctx = await eth.createContext(argv);
   const ethAccount = eth.getAccount(ctx.web3, privateKey);
 
-  const wallets = argv.useWalletFiles ? modifyCommon.getWallets(workDir) : null;
-  const points = modifyCommon.getPoints(argv, workDir, wallets);
+  const wallets = argv.useWalletFiles ? findPoints.getWallets(workDir) : null;
+  const points = findPoints.getPoints(argv, workDir, wallets);
 
   console.log(`Will set spawn proxy for ${points.length} points`);
   for (const p of points) 
@@ -55,7 +54,7 @@ exports.handler = async function (argv)
 
     //create and send tx
     let tx = ajs.ecliptic.setSpawnProxy(ctx.contracts, p, targetAddress)
-    await modifyCommon.setGasSignSendAndSaveTransaction(ctx, tx, privateKey, argv, workDir, patp, 'spawnproxy');
+    await eth.setGasSignSendAndSaveTransaction(ctx, tx, privateKey, argv, workDir, patp, 'spawnproxy');
   } //end for each point
   
   process.exit(0);

@@ -89,7 +89,7 @@ Deliverables:
 - (DONE) Node.JS project and CLI framework (based on yargs)
 - (DONE) Deployable npm package
 - (DONE) Work directory framework
--   (DONE) List command
+- (DONE) List command
 - (DONE) Generate a spawn list
 - (DONE) Generate Master ticket 
 - (NOT NEEDED) Extract relevant code from Bridge, for the time being, copied to the CLI repo
@@ -119,7 +119,7 @@ Deliverables:
 - (DONE) Merge high risk code (e.g., anything related to cryptography) upstream to Urbit org repositories, focusing on making as many CLI functions also usable as a library.
 - Possibly move the CLI project under the Urbit org
 - (DONE) Ethereum Gas handling and configuration, allowing the automation of on chain transactions at a low cost.
-- Report generation command.
+- (DONE) Report generation command.
 
 
 ### Milestone 3 - Layer 2 Support

@@ -1,8 +1,7 @@
 const ob = require('urbit-ob')
 const ajs = require('azimuth-js')
 const _ = require('lodash')
-const {files, validate, eth, azimuth} = require('../../utils')
-const modifyCommon = require('./common')
+const {files, validate, eth, azimuth, findPoints} = require('../../utils')
 
 exports.command = 'management-proxy'
 exports.desc = 'Set the management proxy of one or more points.'
@@ -17,8 +16,8 @@ exports.handler = async function (argv)
   const ctx = await eth.createContext(argv);
   const ethAccount = eth.getAccount(ctx.web3, privateKey);
 
-  const wallets = argv.useWalletFiles ? modifyCommon.getWallets(workDir) : null;
-  const points = modifyCommon.getPoints(argv, workDir, wallets);
+  const wallets = argv.useWalletFiles ? findPoints.getWallets(workDir) : null;
+  const points = findPoints.getPoints(argv, workDir, wallets);
 
   console.log(`Will set mgmt. proxy for ${points.length} points`);
   for (const p of points) 
@@ -48,7 +47,7 @@ exports.handler = async function (argv)
 
     //create and send tx
     let tx = ajs.ecliptic.setManagementProxy(ctx.contracts, p, targetAddress)
-    await modifyCommon.setGasSignSendAndSaveTransaction(ctx, tx, privateKey, argv, workDir, patp, 'managementproxy');
+    await eth.setGasSignSendAndSaveTransaction(ctx, tx, privateKey, argv, workDir, patp, 'managementproxy');
   } //end for each point
   
   process.exit(0);

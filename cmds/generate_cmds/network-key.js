@@ -2,8 +2,7 @@ const ob = require('urbit-ob')
 const kg = require('urbit-key-generation');
 const ticket = require('up8-ticket');
 const _ = require('lodash')
-const {files, validate} = require('../../utils')
-const modifyCommon = require('../modify_cmds/common')
+const {files, validate, findPoints} = require('../../utils')
 
 // needs to be required explicitly for up8-ticket to work
 global.crypto = require('crypto')
@@ -39,8 +38,8 @@ exports.handler = async function (argv)
 {
   const workDir = files.ensureWorkDir(argv.workDir);
 
-  const wallets = argv.useWalletFiles ? modifyCommon.getWallets(workDir) : null;
-  const points = modifyCommon.getPoints(argv, workDir, wallets);
+  const wallets = argv.useWalletFiles ? findPoints.getWallets(workDir) : null;
+  const points = findPoints.getPoints(argv, workDir, wallets);
 
   console.log(`Will generate network keys for ${points.length} points.`);
   for (const p of points) {

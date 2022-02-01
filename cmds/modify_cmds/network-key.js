@@ -1,8 +1,7 @@
 const ob = require('urbit-ob')
 const ajs = require('azimuth-js')
 const _ = require('lodash')
-const {files, validate, eth} = require('../../utils')
-const modifyCommon = require('./common')
+const {files, validate, eth, findPoints} = require('../../utils')
 
 exports.command = 'network-key'
 exports.desc = 'Set the network key for one or more points.'
@@ -17,8 +16,8 @@ exports.handler = async function (argv)
   const ctx = await eth.createContext(argv);
   const ethAccount = eth.getAccount(ctx.web3, privateKey);
 
-  const wallets = argv.useWalletFiles ? modifyCommon.getWallets(workDir) : null;
-  const points = modifyCommon.getPoints(argv, workDir, wallets);
+  const wallets = argv.useWalletFiles ? findPoints.getWallets(workDir) : null;
+  const points = findPoints.getPoints(argv, workDir, wallets);
 
   console.log(`Will set network keys for ${points.length} points`);
   for (const p of points) 
@@ -70,7 +69,7 @@ exports.handler = async function (argv)
         publicAuth,
         CRYPTO_SUITE_VERSION,
         false);
-    await modifyCommon.setGasSignSendAndSaveTransaction(ctx, tx, privateKey, argv, workDir, patp, 'networkkey');
+    await eth.setGasSignSendAndSaveTransaction(ctx, tx, privateKey, argv, workDir, patp, 'networkkey');
   } //end for each point
   
   process.exit(0);

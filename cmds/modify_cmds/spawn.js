@@ -1,8 +1,7 @@
 const ob = require('urbit-ob')
 const ajs = require('azimuth-js')
 const _ = require('lodash')
-const {files, validate, eth} = require('../../utils')
-const modifyCommon = require('./common')
+const {files, validate, eth, findPoints} = require('../../utils')
 
 exports.command = 'spawn'
 exports.desc = 'Spawn one or more points, where the points are patp or p. Can also provide the points to spawn via files. See options.'
@@ -19,8 +18,8 @@ exports.handler = async function (argv)
   const ctx = await eth.createContext(argv);
   const ethAccount = eth.getAccount(ctx.web3, privateKey);
 
-  const wallets = argv.useWalletFiles ? modifyCommon.getWallets(workDir) : null;
-  const points = modifyCommon.getPoints(argv, workDir, wallets);
+  const wallets = argv.useWalletFiles ? findPoints.getWallets(workDir) : null;
+  const points = findPoints.getPoints(argv, workDir, wallets);
 
   //for spawning points, we do not allow it to be spawned directly to the ownership address of the master ticket, even if useWalletFiles is set.
     // the reason for this is that it would require accepting the transfer, and usually HD wallets do not have any ETH on the ownership address to do that.
@@ -41,7 +40,7 @@ exports.handler = async function (argv)
 
     //create and send tx
     let tx = ajs.ecliptic.spawn(ctx.contracts, p, targetAddress);
-    await modifyCommon.setGasSignSendAndSaveTransaction(ctx, tx, privateKey, argv, workDir, patp, 'spawn');
+    await eth.setGasSignSendAndSaveTransaction(ctx, tx, privateKey, argv, workDir, patp, 'spawn');
   } //end for each point
   
   //with web3, sometimes the not all promises complete which keeps the process hanging

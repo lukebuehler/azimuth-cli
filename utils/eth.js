@@ -145,12 +145,33 @@ async function waitForTransactionReceipt(web3, txSigned)
     return receipt;
 }
 
-function ensureTransactionReciept(reciept){
-  if(!reciept || !reciept.status){
-
+async function setGasSignSendAndSaveTransaction(ctx, tx, privateKey, argv, workDir, patp, actionName){
+  setGas(tx, argv);
+  //console.log(JSON.stringify(tx, null, 2));
+  var signedTx = null;
+  try{
+    signedTx = await signAndSend(ctx.web3, tx, privateKey);
+  }
+  catch(err){
+    console.log('Could not send transaction to the blockchain:');
+    console.log(err);
+    process.exit(1);
+  }
+  let receipt = await waitForTransactionReceipt(ctx.web3, signedTx);
+  //save the reciept if the transacation was accepted
+  // status will be false if the blockchain rejected the transaction
+  if(receipt != null && receipt.status){
+    let receiptFileName = patp.substring(1)+`-reciept-${actionName}.json`;
+    files.writeFile(workDir, receiptFileName, receipt);
+    console.error("Transaction accepted by the blockchain.")
+  }
+  else{
+    console.error("Transaction did not succeed.")
+    if(!receipt.logs){
+      console.error(receipt.logs)
+    }
   }
 }
-
 
 module.exports = {
   createContext,
@@ -159,5 +180,6 @@ module.exports = {
   getCurrentGasPrices,
   setGas,
   signAndSend,
-  waitForTransactionReceipt
+  waitForTransactionReceipt,
+  setGasSignSendAndSaveTransaction
 }
