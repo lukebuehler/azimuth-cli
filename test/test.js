@@ -211,6 +211,30 @@ describe('#list', async function() {
     });
   });
 
+  describe('owner-of zod', async function() {
+    it('should list owner address of zod', async function() {
+      let output = await execCliAndGetLines('list', 'owner-of', galaxy, ...baseArgs);
+      expect(output).to.have.lengthOf(1);
+      assert.isTrue(ajs.utils.addressEquals(output[0], ac0), `output addr: ${output[0]}, owner addr: ${ac0}`);
+    });
+  });
+
+  describe('owner-of unspawned', async function() {
+    it('should say that there is no owner yet', async function() {
+      let output = await execCliAndGetLines('list', 'owner-of', planet1d, ...baseArgs);
+      expect(output).to.have.lengthOf(1);
+      assert.isTrue(output[0].startsWith('Point'), `output: ${output[0]}`);
+    });
+  });
+
+  describe('spawn-proxy-of zod', async function() {
+    it('should say that there is no spawn proxy set', async function() {
+      let output = await execCliAndGetLines('list', 'spawn-proxy-of', galaxy, ...baseArgs);
+      expect(output).to.have.lengthOf(1);
+      assert.isTrue(output[0].startsWith('Point'), `output: ${output[0]}`);
+    });
+  });
+
 });
 
 

@@ -45,11 +45,14 @@ For the full documentation, please install the cli and explore the commands and 
  * `list` - Prints azimuth data to the console.
    * `children <point>` - Lists all child points of a certain Urbit point.
    * `owner <address>` - Lists all points owned by that Ethereum address.
+   * `owner-of <point>` - Prints the Ethereum address that owns the point.
+   * `spawn-proxy-of <point>` - Prints the Ethereum address that is the spawn proxy of the point.
    * `gas-price` - Outputs the current Etherum gas prices. This is helpful if you want to provide a gas limit in the `modify` commands.
  * `generate` - Generates various files that can be used in the `modify` commands.
    * `spawn-list <point>` - Creates a `spawn-list.txt` file that contains a number of points that can be spawned under the provided point.
    * `wallet` - Generates an HD wallet for each provided point and saves each wallet in JSON format in the current work directory. Use this especially if you plan to give the points away. Then, in subsequent commands, supply the `--use-wallet-files` option.
    * `network-keys` - Creates the network keyfile for each supplied point, and either creates a JSON file with the private and public network keys or uses the network keys from the walled files. 
+   * `report` - Generates a CSV report for the provided points, containing patp, p, ticket, network keys, addresses, and transactions executed so far.
  * `modify` - Modifies the state of one or more points on the Ethereum blockchain (the azimuth contracts). For many of these commands to work, other files will have to have been generated with the `generate` commands.
    * `spawn` - Spawns multiple points to the supplied address
    * `management-proxy` - Sets the management proxy address for the points.
