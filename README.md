@@ -45,8 +45,7 @@ For the full documentation, please install the cli and explore the commands and 
  * `list` - Prints azimuth data to the console.
    * `children <point>` - Lists all child points of a certain Urbit point.
    * `owner <address>` - Lists all points owned by that Ethereum address.
-   * `owner-of <point>` - Prints the Ethereum address that owns the point.
-   * `spawn-proxy-of <point>` - Prints the Ethereum address that is the spawn proxy of the point.
+   * `details <point>` - Prints details about the point.
    * `gas-price` - Outputs the current Etherum gas prices. This is helpful if you want to provide a gas limit in the `modify` commands.
  * `generate` - Generates various files that can be used in the `modify` commands.
    * `spawn-list <point>` - Creates a `spawn-list.txt` file that contains a number of points that can be spawned under the provided point.
