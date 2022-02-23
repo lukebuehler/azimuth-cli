@@ -41,10 +41,11 @@
   },
   "dependencies": {
     "axios": "^0.25.0",
-    "azimuth-js": "0.22.2",
+    "azimuth-js": "^0.23.0",
     "chalk": "^4.1.2",
-    "lodash": "^4.17.21",
     "hdkey": "2.0.1",
+    "json-rpc-2.0": "^1.1.0",
+    "lodash": "^4.17.21",
     "up8-ticket": "^0.2.0",
     "urbit-key-generation": "^0.20.1",
     "urbit-ob": "^5.0.1",
