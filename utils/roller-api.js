@@ -19,10 +19,10 @@ function createClient(){
   {
     //TODO: add try catch, check for 200 response (see https://www.npmjs.com/package/json-rpc-2.0), show error codes
 
-    console.log(JSON.stringify(jsonRPCRequest));
+    //console.log(JSON.stringify(jsonRPCRequest));
     var response = await axios.post("http://localhost:8080/v1/roller", JSON.stringify(jsonRPCRequest));
     const jsonRPCResponse = response.data;
-    console.log(jsonRPCResponse)
+    //console.log(jsonRPCResponse)
     client.receive(jsonRPCResponse)
   }, nextId);
   return client;
@@ -54,7 +54,8 @@ function getNonce(client, params){
 
 //use this if signing via metamask or wallet connect
 async function prepareForSigning(client, method, params){
-  const nonce = await getNonce(client, params);
+  let nonce = await getNonce(client, params);
+  nonce++;//TODO: is this correct?
   const hashParams = {
     tx: method,
     nonce: nonce,
@@ -74,7 +75,7 @@ async function getUnsignedTx(client, method, params){
     data: params.data
   }
   var res = await client.request("getUnsignedTx", hashParams);
-  console.log("RESULT: "+res);
+  //console.log("RESULT: "+res);
   return res;
 }
 
@@ -88,8 +89,41 @@ async function addSignature(client, method, params, privateKey){
 // Roller JSON-RPC API documentation:
 // https://documenter.getpostman.com/view/16338962/Tzm3nx7x
 
+function getRollerConfig(client){
+  return client.request("getRollerConfig", { });
+}
+
+function getAllPending(client){
+  return client.request("getAllPending", { });
+}
+
+function getPendingByAddress(client, address){
+  return client.request("getPendingByAddress", { address: address });
+}
+
+function whenNextBatch(client){
+  return client.request("whenNextBatch", { });
+}
+
+
+
 function getPoint(client, point){
-  return client.request("getPoint", { ship: point });
+  const patp = ob.patp(validate.point(point, true));
+  return client.request("getPoint", { ship: patp });
+}
+
+function getShips(client, address){
+  return client.request("getShips", { address: address });
+}
+
+function getSpawned(client, point){
+  const patp = ob.patp(validate.point(point, true));
+  return client.request("getSpawned", { ship: patp });
+}
+
+function getUnspawned(client, point){
+  const patp = ob.patp(validate.point(point, true));
+  return client.request("getUnspawned", { ship: patp });
 }
 
 async function spawn(client, parentPoint, spawnPoint, newOwnerAddress, signingAddress, privateKey){
@@ -114,10 +148,127 @@ async function spawn(client, parentPoint, spawnPoint, newOwnerAddress, signingAd
   return await client.request(method, params);
 }
 
+async function transferPoint(client, point, reset, newOwnerAddress, signingAddress, privateKey){
+  const patp = ob.patp(validate.point(point, true));
+  const newOwnerAddressValid = validate.address(newOwnerAddress, true);
+  const signingAddressValid = validate.address(signingAddress, true);
+
+  let params = {
+    address: signingAddressValid,
+    from: {
+      ship: patp,
+      proxy: "transfer"
+    },
+    data: {
+      reset: reset,
+      address: newOwnerAddressValid,
+    }
+  };
+  const method = "transferPoint";
+  params = await addSignature(client, method, params, privateKey);
+  return await client.request(method, params);
+}
+
+async function setManagementProxy(client, point, managementProxyAddress, signingAddress, privateKey){
+  const patp = ob.patp(validate.point(point, true));
+  const targetAddress = validate.address(managementProxyAddress, true);
+  const signingAddressValid = validate.address(signingAddress, true);
+
+  let params = {
+    address: signingAddressValid,
+    from: {
+      ship: patp,
+      proxy: "own"
+    },
+    data: {
+      address: targetAddress,
+    }
+  };
+  const method = "setManagementProxy";
+  params = await addSignature(client, method, params, privateKey);
+  return await client.request(method, params);
+}
+
+async function setSpawnProxy(client, point, spawnProxyAddress, signingAddress, privateKey){
+  const patp = ob.patp(validate.point(point, true));
+  const targetAddress = validate.address(spawnProxyAddress, true);
+  const signingAddressValid = validate.address(signingAddress, true);
+
+  let params = {
+    address: signingAddressValid,
+    from: {
+      ship: patp,
+      proxy: "own"
+    },
+    data: {
+      address: targetAddress,
+    }
+  };
+  const method = "setSpawnProxy";
+  params = await addSignature(client, method, params, privateKey);
+  return await client.request(method, params);
+}
+
+async function setTransferProxy(client, point, transferProxyAddress, signingAddress, privateKey){
+  const patp = ob.patp(validate.point(point, true));
+  const targetAddress = validate.address(transferProxyAddress, true);
+  const signingAddressValid = validate.address(signingAddress, true);
+
+  let params = {
+    address: signingAddressValid,
+    from: {
+      ship: patp,
+      proxy: "own"
+    },
+    data: {
+      address: targetAddress,
+    }
+  };
+  const method = "setTransferProxy";
+  params = await addSignature(client, method, params, privateKey);
+  return await client.request(method, params);
+}
+
+async function configureKeys(client, point, encryptPublic, authPublic, breach, signingAddress, privateKey){
+  const patp = ob.patp(validate.point(point, true));
+  const signingAddressValid = validate.address(signingAddress, true);
+
+  let params = {
+    address: signingAddressValid,
+    from: {
+      ship: patp,
+      proxy: "own"
+    },
+    data: {
+      encrypt: encryptPublic,
+      auth: authPublic,
+      cryptoSuite: 0,
+      breach: breach
+    }
+  };
+  const method = "configureKeys";
+  params = await addSignature(client, method, params, privateKey);
+  return await client.request(method, params);
+}
+
 
 module.exports = {
+  getRollerConfig,
   createClient,
+  getAllPending,
+  getPendingByAddress,
+  whenNextBatch,
+
   getPoint,
-  spawn
+  getShips,
+  getSpawned,
+  getUnspawned,
+
+  spawn,
+  transferPoint,
+  setManagementProxy,
+  setTransferProxy,
+  setSpawnProxy,
+  configureKeys
 }
 
