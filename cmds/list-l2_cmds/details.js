@@ -12,7 +12,7 @@ exports.handler = async function (argv) {
   console.log(`urbit ID (patp): ${patp}`);
   console.log(`urbit ID number (p): ${p}`);
 
-  const rollerClient = rollerApi.createClient();
+  const rollerClient = rollerApi.createClient(argv);
   const pointInfo = await rollerApi.getPoint(rollerClient, p);
   console.log(`data from roller:`);
   console.log(JSON.stringify(pointInfo, null, 2));

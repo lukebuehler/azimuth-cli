@@ -14,13 +14,23 @@ function nextId(){
   return requestCounter.toString(); //the roller rpc need a string ID, otherwise it does it does not work
 }
 
-function createClient(){
+function createClient(argv){
+  let rollerUrl = 
+    argv.rollerProvider == 'local' 
+    ? argv.rollerLocal 
+    : argv.rollerProvider == 'urbit' 
+    ? argv.rollerUrbit 
+    : null;
+  //console.log(rollerUrl);
+  if(rollerUrl == null){
+    rollerUrl = "http://localhost:8080/v1/roller";
+  }
   var client = new JSONRPCClient(async function (jsonRPCRequest)
   {
     //TODO: add try catch, check for 200 response (see https://www.npmjs.com/package/json-rpc-2.0), show error codes
 
     //console.log(JSON.stringify(jsonRPCRequest));
-    var response = await axios.post("http://localhost:8080/v1/roller", JSON.stringify(jsonRPCRequest));
+    var response = await axios.post(rollerUrl, JSON.stringify(jsonRPCRequest));
     const jsonRPCResponse = response.data;
     //console.log(jsonRPCResponse)
     client.receive(jsonRPCResponse)

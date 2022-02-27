@@ -7,7 +7,7 @@ exports.builder = (yargs) =>{
 
 exports.handler = async function (argv) {
 
-  const rollerClient = rollerApi.createClient();
+  const rollerClient = rollerApi.createClient(argv);
 
   const rollerConfig = await rollerApi.getRollerConfig(rollerClient);
   console.log(`roller config:`);

@@ -9,7 +9,7 @@ exports.builder = (yargs) =>{
 
 exports.handler = async function (argv) {
   let addr = validate.address(argv.addr, true);
-  const rollerClient = rollerApi.createClient();
+  const rollerClient = rollerApi.createClient(argv);
 
   let points = await rollerApi.getShips(rollerClient, addr);
   console.log(`listing ${points.length} owned points by ${addr}:`);

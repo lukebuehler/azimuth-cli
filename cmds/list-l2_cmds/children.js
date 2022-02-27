@@ -20,7 +20,7 @@ exports.builder = (yargs) =>{
 
 exports.handler = async function (argv) {
   const point = validate.point(argv.point, true);
-  const rollerClient = rollerApi.createClient();
+  const rollerClient = rollerApi.createClient(argv);
 
   let childPoints = null;
   if(argv.spawned){

@@ -15,7 +15,7 @@ exports.handler = async function (argv)
   const workDir = files.ensureWorkDir(argv.workDir);
   const privateKey = await eth.getPrivateKey(argv);
 
-  const rollerClient = rollerApi.createClient();
+  const rollerClient = rollerApi.createClient(argv);
 
   const wallets = argv.useWalletFiles ? findPoints.getWallets(workDir) : null;
   const points = findPoints.getPoints(argv, workDir, wallets);
