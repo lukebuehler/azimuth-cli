@@ -24,6 +24,9 @@ To run the tests:
 
 
 ## Usage
+
+*Note: Using the CLI with a L2 roller is WIP, see [here for instructions](docs/roller.md).*
+
 After installing the npm package, just type `azimuth-cli` in the command line to see the options. You can also use `azi` for short.
 
 There are three main types of commands: `list`, `generate`, and `modify`. First, the `list` commands do not make any changes, they just print information to the command line. But `generate` commands usually save something to the current work directory; use this, for example, to generate HD wallets. The `modify` commands actually change the blockchain and usually require the private key of the address that owns the urbit point you are making a change to. The `modify` commands also save data to the work directory, such as Ethereum transaction receipts.

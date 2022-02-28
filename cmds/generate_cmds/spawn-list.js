@@ -1,8 +1,7 @@
 const ob = require('urbit-ob')
 const ajs = require('azimuth-js')
 const _ = require('lodash')
-
-const {files, validate, eth} = require('../../utils')
+const {files, validate, eth, rollerApi} = require('../../utils')
 
 exports.command = 'spawn-list <point>'
 exports.desc = 'Create a list of child points to spawn from <point>. If the file already exists, this command will be a no-op.'
@@ -32,6 +31,13 @@ exports.builder = (yargs) =>{
     default: 'random',
     type: 'string',
   });
+
+  //todo: remove this and figure out the dominion pased on the parent point
+  yargs.option('use-roller',{
+    alias: 'l2',
+    describe: 'Connect to a roller to get the unspawned points instead of azimuth.',
+    type: 'boolean',
+  });
 }
 
 exports.handler = async function (argv) 
@@ -45,8 +51,15 @@ exports.handler = async function (argv)
     return;
   }
 
-  const ctx = await eth.createContext(argv);
-  var childPoints = await ajs.azimuth.getUnspawnedChildren(ctx.contracts, point);
+  let childPoints = [];
+  if(!argv.useRoller){
+    const ctx = await eth.createContext(argv);
+    childPoints = await ajs.azimuth.getUnspawnedChildren(ctx.contracts, point);
+  }
+  else{
+    const rollerClient = rollerApi.createClient(argv);
+    childPoints = await rollerApi.getUnspawned(rollerClient, point);
+  }
 
   var spawnList = pickChildPoints(childPoints, argv.count, argv.pick);
   var spawnListPatp = _.map(spawnList, p => ob.patp(p));
