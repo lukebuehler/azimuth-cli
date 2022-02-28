@@ -36,7 +36,7 @@ exports.handler = async function (argv)
       null; //fail
     targetAddress = validate.address(targetAddress, true);
 
-    let pointInfo = rollerApi.getPoint(rollerClient, patp);
+    let pointInfo = await rollerApi.getPoint(rollerClient, patp);
     if(ajsUtils.addressEquals(pointInfo.ownership.managementProxy.address, targetAddress)){
       console.log(`Target address ${targetAddress} is already mgmt. proxy for ${patp}.`);
       continue;

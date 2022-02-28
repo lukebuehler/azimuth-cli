@@ -1,6 +1,7 @@
 const ob = require('urbit-ob')
 const _ = require('lodash')
 const ajsUtils = require('azimuth-js').utils;
+var Accounts = require('web3-eth-accounts');
 const {files, validate, eth, findPoints, rollerApi} = require('../../utils')
 
 exports.command = 'transfer'
@@ -40,7 +41,7 @@ exports.handler = async function (argv)
       null; //fail
     targetAddress = validate.address(targetAddress, true);
 
-    let pointInfo = rollerApi.getPoint(rollerClient, patp);
+    let pointInfo = await rollerApi.getPoint(rollerClient, patp);
     if(ajsUtils.addressEquals(pointInfo.ownership.owner.address, targetAddress)){
       console.log(`Target address ${targetAddress} is already owner of ${patp}.`);
       continue;

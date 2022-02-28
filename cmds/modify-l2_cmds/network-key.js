@@ -32,7 +32,7 @@ exports.handler = async function (argv)
     let patp = ob.patp(p);
     console.log(`Trying to set network key for ${patp} (${p}).`);
 
-    const pointInfo = rollerApi.getPoint(rollerClient, patp);
+    const pointInfo = await rollerApi.getPoint(rollerClient, patp);
     const currentKeys = pointInfo.network.keys;
 
     //retrieve the network keypair

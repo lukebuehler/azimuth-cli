@@ -7,6 +7,7 @@ const validate = require('./validate')
 const { hexToBytes } = require('web3-utils');
 const { ecdsaSign } = require('secp256k1');
 
+const CRYPTO_SUITE_VERSION = 1;
 let requestCounter = 0;
 
 function nextId(){
@@ -166,7 +167,7 @@ async function transferPoint(client, point, reset, newOwnerAddress, signingAddre
   const patp = ob.patp(validate.point(point, true));
   const newOwnerAddressValid = validate.address(newOwnerAddress, true);
   const signingAddressValid = validate.address(signingAddress, true);
-  const proxy = await getTransferProxy(client, parentPatp, signingAddress);
+  const proxy = await getTransferProxy(client, patp, signingAddress);
 
   let params = {
     address: signingAddressValid,
@@ -250,7 +251,7 @@ async function setTransferProxy(client, point, transferProxyAddress, signingAddr
 async function configureKeys(client, point, encryptPublic, authPublic, breach, signingAddress, privateKey){
   const patp = ob.patp(validate.point(point, true));
   const signingAddressValid = validate.address(signingAddress, true);
-  const proxy = await getManagementProxy(client, parentPatp, signingAddress); //either the owner or the manage proxy can set the keys
+  const proxy = await getManagementProxy(client, patp, signingAddress); //either the owner or the manage proxy can set the keys
 
   let params = {
     address: signingAddressValid,
@@ -261,7 +262,7 @@ async function configureKeys(client, point, encryptPublic, authPublic, breach, s
     data: {
       encrypt: encryptPublic,
       auth: authPublic,
-      cryptoSuite: 0,
+      cryptoSuite: CRYPTO_SUITE_VERSION.toString(),
       breach: breach
     }
   };
