@@ -64,8 +64,7 @@ function getNonce(client, params){
 
 //use this if signing via metamask or wallet connect
 async function prepareForSigning(client, method, params){
-  let nonce = await getNonce(client, params);
-  nonce++;//TODO: is this correct?
+  const nonce = await getNonce(client, params);
   const hashParams = {
     tx: method,
     nonce: nonce,
@@ -96,6 +95,10 @@ async function addSignature(client, method, params, privateKey){
   return params;
 }
 
+
+//============================================
+// API
+//============================================
 // Roller JSON-RPC API documentation:
 // https://documenter.getpostman.com/view/16338962/Tzm3nx7x
 
@@ -114,7 +117,6 @@ function getPendingByAddress(client, address){
 function whenNextBatch(client){
   return client.request("whenNextBatch", { });
 }
-
 
 
 function getPoint(client, point){
@@ -141,12 +143,14 @@ async function spawn(client, parentPoint, spawnPoint, newOwnerAddress, signingAd
   const spawnPatp = ob.patp(validate.point(spawnPoint, true));
   const newOwnerAddressValid = validate.address(newOwnerAddress, true);
   const signingAddressValid = validate.address(signingAddress, true);
+  const proxy = await getSpawnProxy(client, parentPatp, signingAddress);
+  //console.log("Proxy: "+proxy);
 
   let params = {
     address: signingAddressValid,
     from: {
       ship: parentPatp,
-      proxy: "own"
+      proxy: proxy
     },
     data: {
       ship: spawnPatp,
@@ -162,12 +166,13 @@ async function transferPoint(client, point, reset, newOwnerAddress, signingAddre
   const patp = ob.patp(validate.point(point, true));
   const newOwnerAddressValid = validate.address(newOwnerAddress, true);
   const signingAddressValid = validate.address(signingAddress, true);
+  const proxy = await getTransferProxy(client, parentPatp, signingAddress);
 
   let params = {
     address: signingAddressValid,
     from: {
       ship: patp,
-      proxy: "transfer"
+      proxy: proxy
     },
     data: {
       reset: reset,
@@ -183,12 +188,13 @@ async function setManagementProxy(client, point, managementProxyAddress, signing
   const patp = ob.patp(validate.point(point, true));
   const targetAddress = validate.address(managementProxyAddress, true);
   const signingAddressValid = validate.address(signingAddress, true);
+  const proxy = "own"; //only the owner can set the management proxy
 
   let params = {
     address: signingAddressValid,
     from: {
       ship: patp,
-      proxy: "own"
+      proxy: proxy
     },
     data: {
       address: targetAddress,
@@ -203,12 +209,13 @@ async function setSpawnProxy(client, point, spawnProxyAddress, signingAddress, p
   const patp = ob.patp(validate.point(point, true));
   const targetAddress = validate.address(spawnProxyAddress, true);
   const signingAddressValid = validate.address(signingAddress, true);
+  const proxy = "own"; //only the owner can set the spawn proxy
 
   let params = {
     address: signingAddressValid,
     from: {
       ship: patp,
-      proxy: "own"
+      proxy: proxy
     },
     data: {
       address: targetAddress,
@@ -223,12 +230,13 @@ async function setTransferProxy(client, point, transferProxyAddress, signingAddr
   const patp = ob.patp(validate.point(point, true));
   const targetAddress = validate.address(transferProxyAddress, true);
   const signingAddressValid = validate.address(signingAddress, true);
+  const proxy = "own"; //only the owner can set the transfer proxy
 
   let params = {
     address: signingAddressValid,
     from: {
       ship: patp,
-      proxy: "own"
+      proxy: proxy
     },
     data: {
       address: targetAddress,
@@ -242,12 +250,13 @@ async function setTransferProxy(client, point, transferProxyAddress, signingAddr
 async function configureKeys(client, point, encryptPublic, authPublic, breach, signingAddress, privateKey){
   const patp = ob.patp(validate.point(point, true));
   const signingAddressValid = validate.address(signingAddress, true);
+  const proxy = await getManagementProxy(client, parentPatp, signingAddress); //either the owner or the manage proxy can set the keys
 
   let params = {
     address: signingAddressValid,
     from: {
       ship: patp,
-      proxy: "own"
+      proxy: proxy
     },
     data: {
       encrypt: encryptPublic,
@@ -261,6 +270,43 @@ async function configureKeys(client, point, encryptPublic, authPublic, breach, s
   return await client.request(method, params);
 }
 
+
+
+async function getManagementProxy(client, point, signingAddress){
+  const pointInfo = await getPoint(client, point);
+  if(ajsUtils.addressEquals(pointInfo.ownership.owner.address, signingAddress))
+    return 'own';
+  else if(ajsUtils.addressEquals(pointInfo.ownership.managementProxy.address, signingAddress))
+    return 'manage';
+  return undefined;
+}
+
+async function getSpawnProxy(client, point, signingAddress){
+  const pointInfo = await getPoint(client, point);
+  if(ajsUtils.addressEquals(pointInfo.ownership.owner.address, signingAddress))
+    return 'own';
+  else if(ajsUtils.addressEquals(pointInfo.ownership.spawnProxy.address, signingAddress))
+    return 'spawn';
+  return undefined;
+}
+
+async function getTransferProxy(client, point, signingAddress){
+  const pointInfo = await getPoint(client, point);
+  if(ajsUtils.addressEquals(pointInfo.ownership.owner.address, signingAddress))
+    return 'own';
+  else if(ajsUtils.addressEquals(pointInfo.ownership.transferProxy.address, signingAddress))
+    return 'transfer';
+  return undefined;
+}
+
+//TODO: add
+// isOwner
+// isManagementProxy
+// isSpawnProxy
+// isTransferProxy
+// canConfigureKeys (either owner or management proxy)
+// canTransfer (either owner or transfer proxy)
+// [-> then replace checks in modify-l2 commands to use these functions]
 
 module.exports = {
   getRollerConfig,
@@ -279,6 +325,10 @@ module.exports = {
   setManagementProxy,
   setTransferProxy,
   setSpawnProxy,
-  configureKeys
+  configureKeys,
+
+  getManagementProxy,
+  getSpawnProxy,
+  getTransferProxy
 }
 

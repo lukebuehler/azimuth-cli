@@ -1,5 +1,6 @@
 const ob = require('urbit-ob')
 const _ = require('lodash')
+var Accounts = require('web3-eth-accounts');
 const {files, validate, eth, findPoints, rollerApi} = require('../../utils')
 
 exports.command = 'spawn'
@@ -7,20 +8,20 @@ exports.desc = 'Spawn one or more points on L2, where the points are patp or p. 
 
 exports.builder = function(yargs) {
   yargs.demandOption('address');
-  yargs.demandOption('signing-address');
+  //yargs.demandOption('signing-address');
 }
 
 exports.handler = async function (argv)
 {
+  const rollerClient = rollerApi.createClient(argv);
   const workDir = files.ensureWorkDir(argv.workDir);
   const privateKey = await eth.getPrivateKey(argv);
-
-  const rollerClient = rollerApi.createClient(argv);
+  const account = new Accounts().privateKeyToAccount(privateKey);
+  const signingAddress = account.address;
 
   const wallets = argv.useWalletFiles ? findPoints.getWallets(workDir) : null;
   const points = findPoints.getPoints(argv, workDir, wallets);
 
-  const signingAddress = validate.address(argv.signingAddress, true);
   //for spawning points, we do not allow it to be spawned directly to the ownership address of the master ticket, even if useWalletFiles is set.
   // .. at least not yet
   const targetAddress = validate.address(argv.address, true);
@@ -38,7 +39,7 @@ exports.handler = async function (argv)
     // console.log("signingAddress: "+signingAddress);
     // console.log("privateKey: "+privateKey);
     var transactioHash = await rollerApi.spawn(rollerClient, parentPoint, patp, targetAddress, signingAddress, privateKey);
-    console.log("hash: "+transactioHash);
+    console.log("tx hash: "+transactioHash);
   } //end for each point
   
   process.exit(0);

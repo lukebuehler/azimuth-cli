@@ -4,12 +4,6 @@ exports.builder = function (yargs) {
   
   yargs.demandOption('d');
 
-  yargs.option('signing-address',{
-    alias: 's',
-    describe: 'The originator address of the operation that signs the request, such as the owner or spawn proxy of the point.',
-    type: 'string',
-  });
-
   yargs.option('address',{
     alias: 'a',
     describe: 'The target address of the operation (spawn to, transfer to, etc.).',
