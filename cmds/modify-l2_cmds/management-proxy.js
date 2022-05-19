@@ -49,8 +49,11 @@ exports.handler = async function (argv)
     }
 
     //create and send tx
-    var transactioHash = await rollerApi.setManagementProxy(rollerClient, patp, targetAddress, signingAddress, privateKey);
-    console.log("tx hash: "+transactioHash);
+    var receipt = await rollerApi.setManagementProxy(rollerClient, patp, targetAddress, signingAddress, privateKey);
+    console.log("tx hash: "+receipt.hash);
+
+    let receiptFileName = patp.substring(1)+`-receipt-L2-${receipt.type}.json`;
+    files.writeFile(workDir, receiptFileName, receipt);
   } //end for each point
   
   process.exit(0);

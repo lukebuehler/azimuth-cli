@@ -96,6 +96,13 @@ async function addSignature(client, method, params, privateKey){
   return params;
 }
 
+function createTransactionReceipt(method, params, txHash){
+  return {
+    sig: params.sig,
+    hash: txHash,
+    type: method
+  }
+}
 
 //============================================
 // API
@@ -160,7 +167,8 @@ async function spawn(client, parentPoint, spawnPoint, newOwnerAddress, signingAd
   };
   const method = "spawn";
   params = await addSignature(client, method, params, privateKey);
-  return await client.request(method, params);
+  var tx = await client.request(method, params);
+  return createTransactionReceipt(method, params, tx);
 }
 
 async function transferPoint(client, point, reset, newOwnerAddress, signingAddress, privateKey){
@@ -182,7 +190,8 @@ async function transferPoint(client, point, reset, newOwnerAddress, signingAddre
   };
   const method = "transferPoint";
   params = await addSignature(client, method, params, privateKey);
-  return await client.request(method, params);
+  var tx = await client.request(method, params);
+  return createTransactionReceipt(method, params, tx);
 }
 
 async function setManagementProxy(client, point, managementProxyAddress, signingAddress, privateKey){
@@ -203,7 +212,8 @@ async function setManagementProxy(client, point, managementProxyAddress, signing
   };
   const method = "setManagementProxy";
   params = await addSignature(client, method, params, privateKey);
-  return await client.request(method, params);
+  var tx = await client.request(method, params);
+  return createTransactionReceipt(method, params, tx);
 }
 
 async function setSpawnProxy(client, point, spawnProxyAddress, signingAddress, privateKey){
@@ -224,7 +234,8 @@ async function setSpawnProxy(client, point, spawnProxyAddress, signingAddress, p
   };
   const method = "setSpawnProxy";
   params = await addSignature(client, method, params, privateKey);
-  return await client.request(method, params);
+  var tx = await client.request(method, params);
+  return createTransactionReceipt(method, params, tx);
 }
 
 async function setTransferProxy(client, point, transferProxyAddress, signingAddress, privateKey){
@@ -245,7 +256,8 @@ async function setTransferProxy(client, point, transferProxyAddress, signingAddr
   };
   const method = "setTransferProxy";
   params = await addSignature(client, method, params, privateKey);
-  return await client.request(method, params);
+  var tx = await client.request(method, params);
+  return createTransactionReceipt(method, params, tx);
 }
 
 async function configureKeys(client, point, encryptPublic, authPublic, breach, signingAddress, privateKey){
@@ -268,7 +280,8 @@ async function configureKeys(client, point, encryptPublic, authPublic, breach, s
   };
   const method = "configureKeys";
   params = await addSignature(client, method, params, privateKey);
-  return await client.request(method, params);
+  var tx = await client.request(method, params);
+  return createTransactionReceipt(method, params, tx);
 }
 
 

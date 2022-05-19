@@ -70,8 +70,11 @@ exports.handler = async function (argv)
         continue;
     }
 
-    var transactioHash = await rollerApi.configureKeys(rollerClient, patp, publicCrypt, publicAuth, argv.breach, signingAddress, privateKey);
-    console.log("tx hash: "+transactioHash);
+    var receipt = await rollerApi.configureKeys(rollerClient, patp, publicCrypt, publicAuth, argv.breach, signingAddress, privateKey);
+    console.log("tx hash: "+receipt.hash);
+
+    let receiptFileName = patp.substring(1)+`-receipt-L2-${receipt.type}.json`;
+    files.writeFile(workDir, receiptFileName, receipt);
   } //end for each point
   
   process.exit(0);

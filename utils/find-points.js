@@ -26,7 +26,7 @@ function getPoints(argv, workDir, wallets){
     //wallets is an object with the keys being the p
     pointsRaw = Object.keys(wallets);
   }
-  console.log(pointsRaw)
+  //console.log(pointsRaw)
   let points = _(pointsRaw)
     .map(p => validate.point(p, false))
     .reject(_.isNull)

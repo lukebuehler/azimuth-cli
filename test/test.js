@@ -265,14 +265,14 @@ describe('#modify', async function() {
     it('should set the network keys for zod', async function() {
       //this also allows us to use zod to spawn further points, only booted points can spawn
       let lines = await execCliAndGetLines('modify', 'network-key', `--points=${galaxy}`, ...baseArgs, ...modifyBaseArgsFromAc0ToAc0);
-      assert.isTrue(files.fileExists(testWorkDir, 'zod-reciept-networkkey.json'));
+      assert.isTrue(files.fileExists(testWorkDir, 'zod-receipt-networkkey.json'));
     });
   });
 
   describe('spawn --points=marzod', async function() {
     it('should spawn the first star under zod', async function() {
       let lines = await execCliAndGetLines('modify', 'spawn', `--points=${star1}`, ...baseArgs, ...modifyBaseArgsFromAc0ToAc0);
-      assert.isTrue(files.fileExists(testWorkDir, 'marzod-reciept-spawn.json'));
+      assert.isTrue(files.fileExists(testWorkDir, 'marzod-receipt-spawn.json'));
 
       let children = await execCliAndGetLines('list', 'children', 'zod', '--spawned', ...baseArgs);
       children.shift();//starts with a header string
@@ -283,21 +283,21 @@ describe('#modify', async function() {
   describe('management-proxy --points=marzod', async function() {
     it('should set the management proxy of marzod', async function() {
       let lines = await execCliAndGetLines('modify', 'management-proxy', `--points=${star1}`, ...baseArgs, ...modifyBaseArgsFromAc0ToAc1);
-      assert.isTrue(files.fileExists(testWorkDir, 'marzod-reciept-managementproxy.json'));
+      assert.isTrue(files.fileExists(testWorkDir, 'marzod-receipt-managementproxy.json'));
     });
   });
 
   describe('spawn-proxy --points=marzod', async function() {
     it('should set the spawn proxy of marzod', async function() {
       let lines = await execCliAndGetLines('modify', 'spawn-proxy', `--points=${star1}`, ...baseArgs, ...modifyBaseArgsFromAc0ToAc1);
-      assert.isTrue(files.fileExists(testWorkDir, 'marzod-reciept-spawnproxy.json'));
+      assert.isTrue(files.fileExists(testWorkDir, 'marzod-receipt-spawnproxy.json'));
     });
   });
 
   describe('transfer --points=marzod', async function() {
     it('should transfer marzod to acc2', async function() {
       let lines = await execCliAndGetLines('modify', 'transfer', `--points=${star1}`, ...baseArgs, ...modifyBaseArgsFromAc0ToAc2);
-      assert.isTrue(files.fileExists(testWorkDir, 'marzod-reciept-transfer.json'));
+      assert.isTrue(files.fileExists(testWorkDir, 'marzod-receipt-transfer.json'));
 
       //ac2 should have one child now
       let children = await execCliAndGetLines('list', 'owner', ac2, ...baseArgs);
