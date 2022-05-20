@@ -33,13 +33,20 @@ exports.handler = async function (argv)
     console.log(`Trying to spawn ${patp} (${p}).`);
 
     const parentPoint = ob.sein(patp);
+
+    const parentPointInfo = await rollerApi.getPoint(rollerClient, parentPoint);
+    if(parentPointInfo.dominion == 'l1'){
+      console.log(`The parent, ${parentPoint}, of this point, ${patp}, cannont spawn on L2, please transfer it to L2 or set the spawn proxy to L2.`);
+      continue;
+    }
+
     // console.log("parent p: "+parentPoint);
     // console.log("p to spawn: "+p);
     // console.log("targetAddress: "+targetAddress);
     // console.log("signingAddress: "+signingAddress);
     // console.log("privateKey: "+privateKey);
     var receipt = await rollerApi.spawn(rollerClient, parentPoint, patp, targetAddress, signingAddress, privateKey);
-    console.log("tx hash: "+receipt.hash);
+    console.log("Tx hash: "+receipt.hash);
 
     let receiptFileName = patp.substring(1)+`-receipt-L2-${receipt.type}.json`;
     files.writeFile(workDir, receiptFileName, receipt);

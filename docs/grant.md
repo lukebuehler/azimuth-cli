@@ -133,11 +133,17 @@ As soon as the Layer 2 solution is released, the CLI should also support actions
 Deliverables:
 
 - Move points that are on Azimuth to L2, or move just the spawn proxy of stars.
-- Connect to a Roller instead of an ETH node
-- Spawn points on L2
-- Set Network Keys on L2
-- Set Proxies on L2
-- Transfer points on L2
+- (DONE) Connect to a Roller instead of an ETH node
+- (DONE) Spawn points on L2
+- (DONE) Set Network Keys on L2
+- (DONE) Set Proxies on L2
+- (DONE) Transfer points on L2
+- (DONE) Ensure that L2 operations are on an l2 point, and L1s on a L1 point
+- combine l1 and l2 list commands
+- rename 'list' to 'get' (breaking change)
+- rename 'modify' to 'modify-l1'
+- merge documentation
+- better error when roller is not available and l2 is needed (in modify and get)
 
 ### Milestone 4 - Additional Features
 

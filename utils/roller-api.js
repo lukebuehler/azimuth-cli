@@ -151,7 +151,7 @@ async function spawn(client, parentPoint, spawnPoint, newOwnerAddress, signingAd
   const spawnPatp = ob.patp(validate.point(spawnPoint, true));
   const newOwnerAddressValid = validate.address(newOwnerAddress, true);
   const signingAddressValid = validate.address(signingAddress, true);
-  const proxy = await getSpawnProxy(client, parentPatp, signingAddress);
+  const proxy = await getSpawnProxyType(client, parentPatp, signingAddress);
   //console.log("Proxy: "+proxy);
 
   let params = {
@@ -175,7 +175,7 @@ async function transferPoint(client, point, reset, newOwnerAddress, signingAddre
   const patp = ob.patp(validate.point(point, true));
   const newOwnerAddressValid = validate.address(newOwnerAddress, true);
   const signingAddressValid = validate.address(signingAddress, true);
-  const proxy = await getTransferProxy(client, patp, signingAddress);
+  const proxy = await getTransferProxyType(client, patp, signingAddress);
 
   let params = {
     address: signingAddressValid,
@@ -263,7 +263,7 @@ async function setTransferProxy(client, point, transferProxyAddress, signingAddr
 async function configureKeys(client, point, encryptPublic, authPublic, breach, signingAddress, privateKey){
   const patp = ob.patp(validate.point(point, true));
   const signingAddressValid = validate.address(signingAddress, true);
-  const proxy = await getManagementProxy(client, patp, signingAddress); //either the owner or the manage proxy can set the keys
+  const proxy = await getManagementProxyType(client, patp, signingAddress); //either the owner or the manage proxy can set the keys
 
   let params = {
     address: signingAddressValid,
@@ -284,9 +284,7 @@ async function configureKeys(client, point, encryptPublic, authPublic, breach, s
   return createTransactionReceipt(method, params, tx);
 }
 
-
-
-async function getManagementProxy(client, point, signingAddress){
+async function getManagementProxyType(client, point, signingAddress){
   const pointInfo = await getPoint(client, point);
   if(ajsUtils.addressEquals(pointInfo.ownership.owner.address, signingAddress))
     return 'own';
@@ -295,7 +293,7 @@ async function getManagementProxy(client, point, signingAddress){
   return undefined;
 }
 
-async function getSpawnProxy(client, point, signingAddress){
+async function getSpawnProxyType(client, point, signingAddress){
   const pointInfo = await getPoint(client, point);
   if(ajsUtils.addressEquals(pointInfo.ownership.owner.address, signingAddress))
     return 'own';
@@ -304,7 +302,7 @@ async function getSpawnProxy(client, point, signingAddress){
   return undefined;
 }
 
-async function getTransferProxy(client, point, signingAddress){
+async function getTransferProxyType(client, point, signingAddress){
   const pointInfo = await getPoint(client, point);
   if(ajsUtils.addressEquals(pointInfo.ownership.owner.address, signingAddress))
     return 'own';
@@ -341,8 +339,8 @@ module.exports = {
   setSpawnProxy,
   configureKeys,
 
-  getManagementProxy,
-  getSpawnProxy,
-  getTransferProxy
+  getManagementProxyType,
+  getSpawnProxyType,
+  getTransferProxyType
 }
 

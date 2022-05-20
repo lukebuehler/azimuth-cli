@@ -33,6 +33,11 @@ exports.handler = async function (argv)
     console.log(`Trying to set network key for ${patp} (${p}).`);
 
     const pointInfo = await rollerApi.getPoint(rollerClient, patp);
+    if(pointInfo.dominion != 'l2'){
+      console.log(`This point in not on L2, please use the L1 modify command.`);
+      continue;
+    }
+    
     const currentKeys = pointInfo.network.keys;
 
     //retrieve the network keypair
@@ -53,7 +58,7 @@ exports.handler = async function (argv)
       process.exit(1);
     }
 
-    if(!(await rollerApi.getManagementProxy(rollerClient, patp, signingAddress))){
+    if(!(await rollerApi.getManagementProxyType(rollerClient, patp, signingAddress))){
       console.log(`Cannot set network keys for ${patp}, must be owner or management proxy.`);
       continue;
     }
@@ -71,7 +76,7 @@ exports.handler = async function (argv)
     }
 
     var receipt = await rollerApi.configureKeys(rollerClient, patp, publicCrypt, publicAuth, argv.breach, signingAddress, privateKey);
-    console.log("tx hash: "+receipt.hash);
+    console.log("Tx hash: "+receipt.hash);
 
     let receiptFileName = patp.substring(1)+`-receipt-L2-${receipt.type}.json`;
     files.writeFile(workDir, receiptFileName, receipt);
