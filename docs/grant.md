@@ -140,10 +140,14 @@ Deliverables:
 - (DONE) Transfer points on L2
 - (DONE) Ensure that L2 operations are on an l2 point, and L1s on a L1 point
 - combine l1 and l2 list commands
-- rename 'list' to 'get' (breaking change)
+   -> TODO: solve how to select roller or azimuth to get data? see problem in details.js for more info
+            prob best to just try the roller and if not avail, fall back to azimuth.
+- review generate commands for roller compat
+- (DONE) rename 'list' to 'get' (breaking change)
 - rename 'modify' to 'modify-l1'
 - merge documentation
 - better error when roller is not available and l2 is needed (in modify and get)
+- make sure the default settings files gets reset
 
 ### Milestone 4 - Additional Features
 
