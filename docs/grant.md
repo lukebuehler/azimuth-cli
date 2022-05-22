@@ -139,9 +139,7 @@ Deliverables:
 - (DONE) Set Proxies on L2
 - (DONE) Transfer points on L2
 - (DONE) Ensure that L2 operations are on an l2 point, and L1s on a L1 point
-- combine l1 and l2 list commands
-   -> TODO: solve how to select roller or azimuth to get data? see problem in details.js for more info
-            prob best to just try the roller and if not avail, fall back to azimuth.
+- (DONE) combine l1 and l2 list commands
 - review generate commands for roller compat
 - (DONE) rename 'list' to 'get' (breaking change)
 - rename 'modify' to 'modify-l1'

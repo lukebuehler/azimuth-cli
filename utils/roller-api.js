@@ -10,6 +10,28 @@ const { ecdsaSign } = require('secp256k1');
 const CRYPTO_SUITE_VERSION = 1;
 let requestCounter = 0;
 
+async function selectDataSource(argv){
+  if(argv.useRoller){
+    return 'roller';
+  }
+  else if(argv.useAzimuth){
+    return 'azimuth';
+  }
+  else{
+    //check if the roller client is available;
+    // if yes, use the roller, otherwise use azimuth
+    try{
+      await getRollerConfig(createClient(argv)); //will throw a connection refused error if not available
+      return 'roller';
+    }
+    catch(error){
+      console.log('Roller not available, falling back to using azimuth, information might not be correct.');
+      return 'azimuth';
+    }
+  }
+  throw 'could not determine data source';
+}
+
 function nextId(){
   requestCounter++;
   return requestCounter.toString(); //the roller rpc need a string ID, otherwise it does it does not work
@@ -321,8 +343,9 @@ async function getTransferProxyType(client, point, signingAddress){
 // [-> then replace checks in modify-l2 commands to use these functions]
 
 module.exports = {
-  getRollerConfig,
+  selectDataSource,
   createClient,
+  getRollerConfig,
   getAllPending,
   getPendingByAddress,
   whenNextBatch,

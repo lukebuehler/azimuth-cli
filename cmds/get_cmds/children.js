@@ -17,16 +17,28 @@ exports.builder = (yargs) =>{
     type: 'boolean',
     conflicts: 'unspawned'
   });
+
+  yargs.option('use-roller',{
+    alias: 'l2',
+    describe: 'Enforce using the roller (L2) for all data and do not allow fallback to azimuth (L1).',
+    type: 'boolean',
+    conflicts: 'use-azimuth'
+  });
+  yargs.option('use-azimuth',{
+    alias: 'l1',
+    describe: 'Enforce using azimuth (L1) for all data and do not allow fallback to the roller (L2).',
+    type: 'boolean',
+    conflicts: 'use-roller'
+  });
 }
 
 exports.handler = async function (argv) {
   const point = validate.point(argv.point, true);
-  const ctx = await eth.createContext(argv);
-  const dominion = await azimuth.getDominion(ctx.contracts, point);
 
+  const source = await rollerApi.selectDataSource(argv);
   let childPoints = 
-    dominion == 'l1' 
-    ? (await getchildPointsFromL1(argv, ctx, point))
+    source == 'azimuth'
+    ? (await getchildPointsFromL1(argv, point))
     : (await getchildPointsFromL2(argv, point));
 
   console.log(`listing ${childPoints.length} children under ${ob.patp(point)} (${point}):`);
@@ -37,8 +49,8 @@ exports.handler = async function (argv) {
   }
 }
 
-
-async function getchildPointsFromL1(argv, ctx, point){
+async function getchildPointsFromL1(argv, point){
+  const ctx = await eth.createContext(argv);
   if(argv.spawned){
     return await ajs.azimuth.getSpawned(ctx.contracts, point);
   }
@@ -52,6 +64,7 @@ async function getchildPointsFromL1(argv, ctx, point){
 
 async function getchildPointsFromL2(argv, point){
   const rollerClient = rollerApi.createClient(argv);
+  console.log('here')
   if(argv.spawned){
     return await rollerApi.getSpawned(rollerClient, point);
   }
