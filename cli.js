@@ -28,7 +28,7 @@ function getUniversalOptions()
     },
     'roller-provider':{
       describe: 'What L2 roller provider to use.',
-      default: 'local',
+      default: 'urbit',
       choices: ['local', 'urbit'],
       type: 'string'
     },

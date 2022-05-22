@@ -1,5 +1,5 @@
 exports.command = 'modify-l2 <command>'
-exports.desc = 'Make changes to a L2 point.'
+exports.desc = 'Make changes to a point via a roller (Layer 2).'
 exports.builder = function (yargs) {
   
   yargs.demandOption('d');

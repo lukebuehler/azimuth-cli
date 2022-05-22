@@ -6,13 +6,11 @@ exports.command = 'details <point>'
 exports.desc = 'Outputs various information about a <point>. Such as owner and proxy addresses.'
 exports.builder = (yargs) =>{
   yargs.option('use-roller',{
-    alias: 'l2',
     describe: 'Enforce using the roller (L2) for all data and do not allow fallback to azimuth (L1).',
     type: 'boolean',
     conflicts: 'use-azimuth'
   });
   yargs.option('use-azimuth',{
-    alias: 'l1',
     describe: 'Enforce using azimuth (L1) for all data and do not allow fallback to the roller (L2).',
     type: 'boolean',
     conflicts: 'use-roller'

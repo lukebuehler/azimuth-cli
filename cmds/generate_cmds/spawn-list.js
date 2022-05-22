@@ -32,27 +32,32 @@ exports.builder = (yargs) =>{
     type: 'string',
   });
 
-  //todo: remove this and figure out the dominion pased on the parent point
   yargs.option('use-roller',{
-    alias: 'l2',
-    describe: 'Connect to a roller to get the unspawned points instead of azimuth.',
+    describe: 'Enforce using the roller (L2) for all data and do not allow fallback to azimuth (L1).',
     type: 'boolean',
+    conflicts: 'use-azimuth'
+  });
+  yargs.option('use-azimuth',{
+    describe: 'Enforce using azimuth (L1) for all data and do not allow fallback to the roller (L2).',
+    type: 'boolean',
+    conflicts: 'use-roller'
   });
 }
 
 exports.handler = async function (argv) 
 {
   const point = validate.point(argv.point, true);
+
   const workDir = files.ensureWorkDir(argv.workDir);
- 
   if(files.fileExists(workDir, argv.output) && !argv.force)
   {
     console.log('Spawn list file already exists, will not recreate it.');
     return;
   }
 
+  const source = await rollerApi.selectDataSource(argv);
   let childPoints = [];
-  if(!argv.useRoller){
+  if(source == 'azimuth'){
     const ctx = await eth.createContext(argv);
     childPoints = await ajs.azimuth.getUnspawnedChildren(ctx.contracts, point);
   }

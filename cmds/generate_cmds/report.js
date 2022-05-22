@@ -37,26 +37,31 @@ exports.builder = (yargs) =>{
     return true
   });
 
-    //todo: remove this and figure out the dominion pased on the parent point
   yargs.option('use-roller',{
-    alias: 'l2',
-    describe: 'Connect to a roller to get the unspawned points instead of azimuth.',
+    describe: 'Enforce using the roller (L2) for all data and do not allow fallback to azimuth (L1).',
     type: 'boolean',
+    conflicts: 'use-azimuth'
+  });
+  yargs.option('use-azimuth',{
+    describe: 'Enforce using azimuth (L1) for all data and do not allow fallback to the roller (L2).',
+    type: 'boolean',
+    conflicts: 'use-roller'
   });
 }
 
 exports.handler = async function (argv) 
 {
-  const workDir = files.ensureWorkDir(argv.workDir);
+  const source = await rollerApi.selectDataSource(argv);
   let ctx = null;
   let rollerClient = null;
-  if(!argv.useRoller){
+  if(source == 'azimuth'){
     ctx = await eth.createContext(argv);
   }
   else{
     rollerClient = rollerApi.createClient(argv);
   }
 
+  const workDir = files.ensureWorkDir(argv.workDir);
   const wallets = argv.useWalletFiles ? findPoints.getWallets(workDir) : null;
   const points = findPoints.getPoints(argv, workDir, wallets);
 
@@ -89,7 +94,7 @@ exports.handler = async function (argv)
     csvLine += `${masterTicket},${networkKeyfileContents},`;
 
     //use azimuth
-    if(!argv.useRoller){
+    if(source == 'azimuth'){
       //get the addresses
       const dominion = 'L1'; //todo: try to get the dominion via ajs
       const ownerAddress = await ajs.azimuth.getOwner(ctx.contracts, p);

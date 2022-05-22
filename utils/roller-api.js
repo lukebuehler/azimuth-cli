@@ -12,7 +12,13 @@ let requestCounter = 0;
 
 async function selectDataSource(argv){
   if(argv.useRoller){
-    return 'roller';
+    try{
+      await getRollerConfig(createClient(argv)); //will throw a connection refused error if not available
+      return 'roller';
+    }
+    catch(error){
+      throw 'Roller not available. You required the usage of the roller, please ensure it is running and can be reached.'
+    }
   }
   else if(argv.useAzimuth){
     return 'azimuth';

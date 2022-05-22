@@ -1,5 +1,5 @@
-exports.command = 'modify <command>'
-exports.desc = 'Make changes to the on-chain state on Azimuth.'
+exports.command = 'modify-l1 <command>'
+exports.desc = 'Make changes to the on-chain state on Azimuth (Layer 1).'
 exports.builder = function (yargs) {
   
   yargs.option('address',{
