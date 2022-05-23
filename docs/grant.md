@@ -132,7 +132,6 @@ As soon as the Layer 2 solution is released, the CLI should also support actions
 
 Deliverables:
 
-- Move points that are on Azimuth to L2, or move just the spawn proxy of stars.
 - (DONE) Connect to a Roller instead of an ETH node
 - (DONE) Spawn points on L2
 - (DONE) Set Network Keys on L2
@@ -145,7 +144,6 @@ Deliverables:
 - (DONE) better error when roller is not available and l2 is needed (in modify and get)
 - (DONE) rename 'modify' to 'modify-l1'
 - (DONE) merge documentation, and update documentation
-- make sure the default settings files gets reset
 
 ### Milestone 4 - Additional Features
 
@@ -157,9 +155,10 @@ Adding a set of features that will make the CLI much more usable and secure
 
 Deliverables:
 
+- Move points that are on Azimuth to L2, or move just the spawn proxy of stars.
 - Hardware Wallet support (signing transactions on the wallet not using the web3 lib)
 - Retrieving private keys from key-chains, at least MacOS or Linux
-- More point list/search functionality
+- (DONE) More point list/search functionality
 - Search for unspawned planets (for example, by English language worlds, like Venetia, or custom strings)
-- Query Azimuth (and L2) for ship state: is it spawned, is it keyed, etc. (this is helpful to check if, say, a galaxy is likely to be alive when buying a star).
+- (DONE) Query Azimuth (and L2) for ship state: is it spawned, is it keyed, etc. (this is helpful to check if, say, a galaxy is likely to be alive when buying a star).
 - Utils (p to patp)

@@ -80,6 +80,6 @@ exports.builder = function (yargs) {
     return true
   });
 
-  return yargs.commandDir('modify_cmds', {exclude:'common'} )
+  return yargs.commandDir('modify-l1_cmds', {exclude:'common'} )
 }
 exports.handler = function (argv) {}

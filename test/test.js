@@ -87,7 +87,7 @@ fs.mkdirSync(testWorkDir, { recursive: true });
 
 console.log('Test work directory is: '+testWorkDir);
 
-const baseArgs = ['--eth-provider=ganache', `--work-dir=${testWorkDir}`];
+const baseArgs = ['--eth-provider=ganache', `--work-dir=${testWorkDir}`, '--use-azimuth'];
 
 // accounts
 const mnemonic = 'benefit crew supreme gesture quantum web media hazard theory mercy wing kitten';
@@ -176,11 +176,11 @@ it('prepare the environment', async function() {
   // planet1d = planet1d + galaxy;
 });
 
-describe('#list', async function() {
+describe('#get', async function() {
 
   describe('children 0', async function() {
     it('should list all children of zod', async function() {
-      let children = await execCliAndGetLines('list', 'children', '0', ...baseArgs);
+      let children = await execCliAndGetLines('get', 'children', '0', ...baseArgs);
       children.shift();//starts with a header string
       expect(children).to.have.lengthOf(255);
     });
@@ -188,7 +188,7 @@ describe('#list', async function() {
 
   describe('children 0 --spawned', async function() {
     it('should list all spawned children of zod', async function() {
-      let children = await execCliAndGetLines('list', 'children', '0', '--spawned', ...baseArgs);
+      let children = await execCliAndGetLines('get', 'children', '0', '--spawned', ...baseArgs);
       children.shift();//starts with a header string
       expect(children).to.have.lengthOf(0);
     });
@@ -196,7 +196,7 @@ describe('#list', async function() {
 
   describe('children 0 --unspawned', async function() {
     it('should list all unspawned children of zod', async function() {
-      let children = await execCliAndGetLines('list', 'children', '0', '--unspawned', ...baseArgs);
+      let children = await execCliAndGetLines('get', 'children', '0', '--unspawned', ...baseArgs);
       children.shift();//starts with a header string
       expect(children).to.have.lengthOf(255);
       expect(children).to.have.lengthOf.at.most(255);
@@ -205,7 +205,7 @@ describe('#list', async function() {
 
   describe('owner zodAddr', async function() {
     it('should list owner of two galaxies', async function() {
-      let children = await execCliAndGetLines('list', 'owner', ac0, ...baseArgs);
+      let children = await execCliAndGetLines('get', 'owner', ac0, ...baseArgs);
       children.shift();//starts with a header string
       expect(children).to.have.lengthOf(2);
     });
@@ -213,7 +213,7 @@ describe('#list', async function() {
 
   describe('details zod', async function() {
     it('should list details about zod', async function() {
-      let output = await execCliAndGetLines('list', 'details', galaxy, ...baseArgs);
+      let output = await execCliAndGetLines('get', 'details', galaxy, ...baseArgs);
       expect(output).to.have.lengthOf.at.least(10);
     });
   });
@@ -258,23 +258,23 @@ describe('#generate', async function() {
 });
 
 
-describe('#modify', async function() {
+describe('#modify-l1', async function() {
   this.timeout(10000); 
 
   describe('network-key --points=zod', async function() {
     it('should set the network keys for zod', async function() {
       //this also allows us to use zod to spawn further points, only booted points can spawn
-      let lines = await execCliAndGetLines('modify', 'network-key', `--points=${galaxy}`, ...baseArgs, ...modifyBaseArgsFromAc0ToAc0);
+      let lines = await execCliAndGetLines('modify-l1', 'network-key', `--points=${galaxy}`, ...baseArgs, ...modifyBaseArgsFromAc0ToAc0);
       assert.isTrue(files.fileExists(testWorkDir, 'zod-receipt-networkkey.json'));
     });
   });
 
   describe('spawn --points=marzod', async function() {
     it('should spawn the first star under zod', async function() {
-      let lines = await execCliAndGetLines('modify', 'spawn', `--points=${star1}`, ...baseArgs, ...modifyBaseArgsFromAc0ToAc0);
+      let lines = await execCliAndGetLines('modify-l1', 'spawn', `--points=${star1}`, ...baseArgs, ...modifyBaseArgsFromAc0ToAc0);
       assert.isTrue(files.fileExists(testWorkDir, 'marzod-receipt-spawn.json'));
 
-      let children = await execCliAndGetLines('list', 'children', 'zod', '--spawned', ...baseArgs);
+      let children = await execCliAndGetLines('get', 'children', 'zod', '--spawned', ...baseArgs);
       children.shift();//starts with a header string
       expect(children).to.have.lengthOf.at.least(1);
     });
@@ -282,25 +282,25 @@ describe('#modify', async function() {
 
   describe('management-proxy --points=marzod', async function() {
     it('should set the management proxy of marzod', async function() {
-      let lines = await execCliAndGetLines('modify', 'management-proxy', `--points=${star1}`, ...baseArgs, ...modifyBaseArgsFromAc0ToAc1);
+      let lines = await execCliAndGetLines('modify-l1', 'management-proxy', `--points=${star1}`, ...baseArgs, ...modifyBaseArgsFromAc0ToAc1);
       assert.isTrue(files.fileExists(testWorkDir, 'marzod-receipt-managementproxy.json'));
     });
   });
 
   describe('spawn-proxy --points=marzod', async function() {
     it('should set the spawn proxy of marzod', async function() {
-      let lines = await execCliAndGetLines('modify', 'spawn-proxy', `--points=${star1}`, ...baseArgs, ...modifyBaseArgsFromAc0ToAc1);
+      let lines = await execCliAndGetLines('modify-l1', 'spawn-proxy', `--points=${star1}`, ...baseArgs, ...modifyBaseArgsFromAc0ToAc1);
       assert.isTrue(files.fileExists(testWorkDir, 'marzod-receipt-spawnproxy.json'));
     });
   });
 
   describe('transfer --points=marzod', async function() {
     it('should transfer marzod to acc2', async function() {
-      let lines = await execCliAndGetLines('modify', 'transfer', `--points=${star1}`, ...baseArgs, ...modifyBaseArgsFromAc0ToAc2);
+      let lines = await execCliAndGetLines('modify-l1', 'transfer', `--points=${star1}`, ...baseArgs, ...modifyBaseArgsFromAc0ToAc2);
       assert.isTrue(files.fileExists(testWorkDir, 'marzod-receipt-transfer.json'));
 
       //ac2 should have one child now
-      let children = await execCliAndGetLines('list', 'owner', ac2, ...baseArgs);
+      let children = await execCliAndGetLines('get', 'owner', ac2, ...baseArgs);
       children.shift();//starts with a header string
       expect(children).to.have.lengthOf(1);
     });

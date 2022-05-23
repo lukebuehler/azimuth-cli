@@ -15,6 +15,8 @@ Due to an issues when building the azimuth-js package (as described [here](https
 Simply install the npm package globally:  
 `npm install -g azimuth-cli`
 
+**When Upgrading to the L2 version:** Make sure to delete the `cli-config.json` file in your home directory, usually in a folder called `.azimuth/`.
+
 ### Development or Manual Install
 1) Clone this [repo](https://github.com/lukebuehler/azimuth-cli)
 1) run `npm install`
