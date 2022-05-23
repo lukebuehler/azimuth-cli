@@ -1,6 +1,6 @@
 {
   "name": "azimuth-cli",
-  "version": "0.1.3",
+  "version": "1.0.0",
   "description": "Urbit Bridge for the command line",
   "main": "index.js",
   "bin": {
