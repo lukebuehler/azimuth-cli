@@ -112,7 +112,7 @@ azi modify-l1 network-key --use-wallet-files --private-key=0x1234567890
 azi modify-l1 transfer --use-wallet-files --private-key=0x1234567890
 ```
 
-#### Spawn, Set Network Keys, and Transfer to Master Ticket on Azimuth (L2)
+#### Spawn, Set Network Keys, and Transfer to Master Ticket through a Roller (L2)
 
 This is the same example as above but using a roller to spawn the planets.
 
