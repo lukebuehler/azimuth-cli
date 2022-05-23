@@ -144,7 +144,7 @@ Deliverables:
 - (DONE) rename 'list' to 'get' (breaking change)
 - (DONE) better error when roller is not available and l2 is needed (in modify and get)
 - (DONE) rename 'modify' to 'modify-l1'
-- merge documentation, and update documentation
+- (DONE) merge documentation, and update documentation
 - make sure the default settings files gets reset
 
 ### Milestone 4 - Additional Features

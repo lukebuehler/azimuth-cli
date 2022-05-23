@@ -77,31 +77,8 @@ For a more cURL examples, [see here](https://documenter.getpostman.com/view/1633
  * Check if there is any Ethereum state pending (it should return 0): `:eth-watcher +dbug [%state '(lent pending-logs:(~(got by dogs) /azimuth))']`
  * See how many azimuth logs there are: `:azimuth +dbug [%state '(lent logs)']`
 
-## Spawn Planets Using the Azimuth-CLI
-
-Clone the latest version from from `https://github.com/lukebuehler/azimuth-cli` and switch to the `l2` branch (`git checkout l2`). Follow the  development install instructions in the readme. You should be able to type `azi` in the command line and see the azimuth-cli options, including `list-l2` and `modify-l2`. Make sure you are on node version 14.x.x.
-
-If you don't see the l2 commands, you are not on the right version. Maybe you have the cli already installed globally? Do `npm uninstall -g azimuth-cli` first and then install again.
-
-Copy one line after the other to the command line. This will just spawn two random planets, you can change the `spawn-list.txt` file however you want.
-
-```
-azi generate spawn-list ~sampel --count=2 --pick=random --use-roller
-
-azi generate wallet --points-file=spawn-list.txt
-
-azi generate network-key --use-wallet-files
-
-azi modify-l2 spawn --use-wallet-files --address=0xSpawnProxy --private-key=0xSpawnProxyKey
-
-azi modify-l2 management-proxy --use-wallet-files --address=0xManagementProxy --private-key=0xSpawnProxyKey
-
-azi modify-l2 network-key --use-wallet-files --private-key=0xSpawnProxyKey
-
-azi modify-l2 transfer --use-wallet-files --private-key=0xSpawnProxyKey 
-```
-
-
+### Using the Local Roller in the CLI
+When you use `modify-l1` commands, make sure you include the following option: `--roller-provider=local`. Otherwise, the CLI will use the official Urbit roller.
 
 
 
