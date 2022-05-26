@@ -2,7 +2,7 @@ const ob = require('urbit-ob')
 const kg = require('urbit-key-generation');
 const ticket = require('up8-ticket');
 const _ = require('lodash')
-const {files, validate, eth, findPoints} = require('../../utils')
+const {files, validate, eth, findPoints, rollerApi} = require('../../utils')
 const ajs = require('azimuth-js')
 
 exports.command = 'report'
@@ -36,27 +36,47 @@ exports.builder = (yargs) =>{
     if (!argv.pointsFile && !argv.points && !argv.useWalletFiles) throw new Error('You must provide either --points-file, --points, or --use-wallet-files')
     return true
   });
+
+  yargs.option('use-roller',{
+    describe: 'Enforce using the roller (L2) for all data and do not allow fallback to azimuth (L1).',
+    type: 'boolean',
+    conflicts: 'use-azimuth'
+  });
+  yargs.option('use-azimuth',{
+    describe: 'Enforce using azimuth (L1) for all data and do not allow fallback to the roller (L2).',
+    type: 'boolean',
+    conflicts: 'use-roller'
+  });
 }
 
 exports.handler = async function (argv) 
 {
-  const workDir = files.ensureWorkDir(argv.workDir);
-  const ctx = await eth.createContext(argv);
+  const source = await rollerApi.selectDataSource(argv);
+  let ctx = null;
+  let rollerClient = null;
+  if(source == 'azimuth'){
+    ctx = await eth.createContext(argv);
+  }
+  else{
+    rollerClient = rollerApi.createClient(argv);
+  }
 
+  const workDir = files.ensureWorkDir(argv.workDir);
   const wallets = argv.useWalletFiles ? findPoints.getWallets(workDir) : null;
   const points = findPoints.getPoints(argv, workDir, wallets);
 
   const csvHeader = 
-    'patp,p,ship_type,master_ticket,network_keyfile,' +
-    'owner_address,proxy_address,' + //management_address is omitted because there is currently no API to retrieve the management proxy address
+    'patp,p,ship_type,parent_patp,master_ticket,network_keyfile,' +
+    'dominion,owner_address,spawn_proxy_address,management_proxy_address,' +
     'spawn_transaction,management_proxy_transaction,spawn_proxy_transaction,network_key_transaction,transfer_transaction';
   let csvLines = [csvHeader];
 
   console.log(`Will process ${points.length} points for the report.`);
   for (const p of points) {
     const patp = ob.patp(p);
+    const patpParent = ob.sein(patp);
     const shipType = ob.clan(patp);
-    let csvLine = `${patp},${p},${shipType},`;
+    let csvLine = `${patp},${p},${shipType},${patpParent},`;
 
     //see if we have a wallet to get the master from
     let masterTicket = '';
@@ -73,19 +93,41 @@ exports.handler = async function (argv)
     }
     csvLine += `${masterTicket},${networkKeyfileContents},`;
 
-    //get the addresses
-    const ownerAddress = await ajs.azimuth.getOwner(ctx.contracts, p);
-    const spawnProxyAddress = await ajs.azimuth.getSpawnProxy(ctx.contracts, p);
-    csvLine += `${ownerAddress},${spawnProxyAddress},`;
-   
-    //try to get the transaction reciepts
-    let spawnTransaction = tryGetTransactionHash(patp, workDir, 'spawn');
-    let managementProxyTransaction = tryGetTransactionHash(patp, workDir, 'managementproxy');
-    let spawnProxyTransaction = tryGetTransactionHash(patp, workDir, 'spawnproxy');
-    let networkkeyTransaction = tryGetTransactionHash(patp, workDir, 'networkkey');
-    let transferTransaction = tryGetTransactionHash(patp, workDir, 'transfer');
-    csvLine += `${spawnTransaction},${managementProxyTransaction},${spawnProxyTransaction},${networkkeyTransaction},${transferTransaction}`;
+    //use azimuth
+    if(source == 'azimuth'){
+      //get the addresses
+      const dominion = 'L1'; //todo: try to get the dominion via ajs
+      const ownerAddress = await ajs.azimuth.getOwner(ctx.contracts, p);
+      const spawnProxyAddress = await ajs.azimuth.getSpawnProxy(ctx.contracts, p);
+      const managementProxyAddress = ''; //does not work yet: await ajs.azimuth.getManagementProxy(ctx.contracts, p);
+      csvLine += `${dominion},${ownerAddress},${spawnProxyAddress},${managementProxyAddress},`;
+    
+      //try to get the transaction receipts
+      let spawnTransaction = tryGetTransactionHash(patp, workDir, 'spawn');
+      let managementProxyTransaction = tryGetTransactionHash(patp, workDir, 'managementproxy');
+      let spawnProxyTransaction = tryGetTransactionHash(patp, workDir, 'spawnproxy');
+      let networkkeyTransaction = tryGetTransactionHash(patp, workDir, 'networkkey');
+      let transferTransaction = tryGetTransactionHash(patp, workDir, 'transfer');
+      csvLine += `${spawnTransaction},${managementProxyTransaction},${spawnProxyTransaction},${networkkeyTransaction},${transferTransaction}`;
+    }
+    //L2 roller
+    else{
+      //get the addresses
+      const pointInfo = await rollerApi.getPoint(rollerClient, p);
+      const dominion = pointInfo.dominion;
+      const ownerAddress = pointInfo.ownership.owner.address;
+      const spawnProxyAddress = pointInfo.ownership.spawnProxy.address;
+      const managementProxyAddress = pointInfo.ownership.managementProxy.address;
+      csvLine += `${dominion},${ownerAddress},${spawnProxyAddress},${managementProxyAddress},`;
 
+      //try to get the transaction receipts
+      let spawnTransaction = tryGetTransactionHashL2(patp, workDir, 'spawn');
+      let managementProxyTransaction = tryGetTransactionHashL2(patp, workDir, 'setManagementProxy');
+      let spawnProxyTransaction = tryGetTransactionHashL2(patp, workDir, 'setSpawnProxy');
+      let networkkeyTransaction = tryGetTransactionHashL2(patp, workDir, 'configureKeys');
+      let transferTransaction = tryGetTransactionHashL2(patp, workDir, 'transferPoint');
+      csvLine += `${spawnTransaction},${managementProxyTransaction},${spawnProxyTransaction},${networkkeyTransaction},${transferTransaction}`;
+    }
     csvLines.push(csvLine);
   }
 
@@ -95,9 +137,17 @@ exports.handler = async function (argv)
 }
 
 function tryGetTransactionHash(patp, workDir, operationPostfix){
-  const transactionFile = `${patp.substring(1)}-reciept-${operationPostfix}.json`;
+  const transactionFile = `${patp.substring(1)}-receipt-${operationPostfix}.json`;
     if(files.fileExists(workDir, transactionFile)){
       return files.readJsonObject(workDir, transactionFile).transactionHash;
+    }
+    return '';
+}
+
+function tryGetTransactionHashL2(patp, workDir, method){
+  const transactionFile = `${patp.substring(1)}-receipt-L2-${method}.json`;
+    if(files.fileExists(workDir, transactionFile)){
+      return files.readJsonObject(workDir, transactionFile).hash;
     }
     return '';
 }

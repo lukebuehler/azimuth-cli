@@ -26,6 +26,12 @@ function getUniversalOptions()
       choices: ['ganache', 'ropsten', 'mainnet'],
       type: 'string'
     },
+    'roller-provider':{
+      describe: 'What L2 roller provider to use.',
+      default: 'urbit',
+      choices: ['local', 'urbit'],
+      type: 'string'
+    },
     'config-file':{
       describe: 'What config file to use.',
       default: files.ensureDefaultConfigFilePath(),

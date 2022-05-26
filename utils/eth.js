@@ -158,10 +158,10 @@ async function setGasSignSendAndSaveTransaction(ctx, tx, privateKey, argv, workD
     process.exit(1);
   }
   let receipt = await waitForTransactionReceipt(ctx.web3, signedTx);
-  //save the reciept if the transacation was accepted
+  //save the receipt if the transacation was accepted
   // status will be false if the blockchain rejected the transaction
   if(receipt != null && receipt.status){
-    let receiptFileName = patp.substring(1)+`-reciept-${actionName}.json`;
+    let receiptFileName = patp.substring(1)+`-receipt-${actionName}.json`;
     files.writeFile(workDir, receiptFileName, receipt);
     console.error("Transaction accepted by the blockchain.")
   }

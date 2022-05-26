@@ -1,5 +1,5 @@
-exports.command = 'modify <command>'
-exports.desc = 'Make changes to the on-chain state on Azimuth.'
+exports.command = 'modify-l1 <command>'
+exports.desc = 'Make changes to the on-chain state on Azimuth (Layer 1).'
 exports.builder = function (yargs) {
   
   yargs.option('address',{
@@ -80,6 +80,6 @@ exports.builder = function (yargs) {
     return true
   });
 
-  return yargs.commandDir('modify_cmds', {exclude:'common'} )
+  return yargs.commandDir('modify-l1_cmds', {exclude:'common'} )
 }
 exports.handler = function (argv) {}

@@ -1,8 +1,7 @@
 const ob = require('urbit-ob')
 const ajs = require('azimuth-js')
 const _ = require('lodash')
-
-const {files, validate, eth} = require('../../utils')
+const {files, validate, eth, rollerApi} = require('../../utils')
 
 exports.command = 'spawn-list <point>'
 exports.desc = 'Create a list of child points to spawn from <point>. If the file already exists, this command will be a no-op.'
@@ -32,21 +31,40 @@ exports.builder = (yargs) =>{
     default: 'random',
     type: 'string',
   });
+
+  yargs.option('use-roller',{
+    describe: 'Enforce using the roller (L2) for all data and do not allow fallback to azimuth (L1).',
+    type: 'boolean',
+    conflicts: 'use-azimuth'
+  });
+  yargs.option('use-azimuth',{
+    describe: 'Enforce using azimuth (L1) for all data and do not allow fallback to the roller (L2).',
+    type: 'boolean',
+    conflicts: 'use-roller'
+  });
 }
 
 exports.handler = async function (argv) 
 {
   const point = validate.point(argv.point, true);
+
   const workDir = files.ensureWorkDir(argv.workDir);
- 
   if(files.fileExists(workDir, argv.output) && !argv.force)
   {
     console.log('Spawn list file already exists, will not recreate it.');
     return;
   }
 
-  const ctx = await eth.createContext(argv);
-  var childPoints = await ajs.azimuth.getUnspawnedChildren(ctx.contracts, point);
+  const source = await rollerApi.selectDataSource(argv);
+  let childPoints = [];
+  if(source == 'azimuth'){
+    const ctx = await eth.createContext(argv);
+    childPoints = await ajs.azimuth.getUnspawnedChildren(ctx.contracts, point);
+  }
+  else{
+    const rollerClient = rollerApi.createClient(argv);
+    childPoints = await rollerApi.getUnspawned(rollerClient, point);
+  }
 
   var spawnList = pickChildPoints(childPoints, argv.count, argv.pick);
   var spawnListPatp = _.map(spawnList, p => ob.patp(p));

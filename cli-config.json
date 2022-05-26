@@ -1,5 +1,7 @@
 {
-  "ethProviderGanache": "'http://localhost:8545'",
+  "ethProviderGanache": "http://localhost:8545",
   "ethProviderRopsten": "https://ropsten.infura.io/v3/f23d3259814348dbb693726415858db8",
-  "ethProviderMainnet": "https://mainnet.infura.io/v3/f23d3259814348dbb693726415858db8"
+  "ethProviderMainnet": "https://mainnet.infura.io/v3/f23d3259814348dbb693726415858db8",
+  "rollerLocal": "http://localhost:8080/v1/roller",
+  "rollerUrbit": "https://roller.urbit.org/v1/roller"
 }
