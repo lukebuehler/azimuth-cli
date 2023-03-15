@@ -87,7 +87,7 @@ exports.handler = async function (argv)
 }
 
 
-const DEFAULT_REVISION = 1;
+const DEFAULT_REVISION = 0;
 
 const MIN_STAR = 256;
 const MIN_PLANET = 65536;

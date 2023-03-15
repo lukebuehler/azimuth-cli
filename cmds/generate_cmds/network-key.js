@@ -97,4 +97,4 @@ exports.handler = async function (argv)
   }
 }
 
-const DEFAULT_REVISION = 1;
+const DEFAULT_REVISION = 0;

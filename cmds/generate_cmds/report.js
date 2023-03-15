@@ -152,4 +152,4 @@ function tryGetTransactionHashL2(patp, workDir, method){
     return '';
 }
 
-const DEFAULT_REVISION = 1;
+const DEFAULT_REVISION = 0;
