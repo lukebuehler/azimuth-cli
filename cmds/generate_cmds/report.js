@@ -16,6 +16,12 @@ exports.builder = (yargs) =>{
     default: 'report.csv'
   });
 
+  yargs.option('output-format', {
+    describe: 'The format of the report.',
+    choices: ['azimuth-cli', 'bridge'],
+    default: 'azimuth-cli'
+  });
+
   yargs.option('points-file',{
     describe: 'A file containing the points with each point on a separate line, can be p or patp.',
     type: 'string',
@@ -65,19 +71,37 @@ exports.handler = async function (argv)
   const wallets = argv.useWalletFiles ? findPoints.getWallets(workDir) : null;
   const points = findPoints.getPoints(argv, workDir, wallets);
 
-  const csvHeader = 
-    'patp,p,ship_type,parent_patp,master_ticket,network_keyfile,' +
-    'dominion,owner_address,spawn_proxy_address,management_proxy_address,' +
-    'spawn_transaction,management_proxy_transaction,spawn_proxy_transaction,network_key_transaction,transfer_transaction';
+  let csvHeader;
+  switch(argv.outputFormat){
+    case 'azimuth-cli':
+      csvHeader =
+        'patp,p,ship_type,parent_patp,master_ticket,network_keyfile,' +
+        'dominion,owner_address,spawn_proxy_address,management_proxy_address,' +
+        'spawn_transaction,management_proxy_transaction,spawn_proxy_transaction,network_key_transaction,transfer_transaction';
+      break;
+    case 'bridge':
+      csvHeader =
+        'Number,Planet,Invite URL,Point,Ticket';
+      break;
+  }
+
   let csvLines = [csvHeader];
 
   console.log(`Will process ${points.length} points for the report.`);
+  let i = 0;
   for (const p of points) {
+    i += 1;
     const patp = ob.patp(p);
     const patpParent = ob.sein(patp);
     const shipType = ob.clan(patp);
-    let csvLine = `${patp},${p},${shipType},${patpParent},`;
 
+    let csvLine;
+    switch(argv.outputFormat) {
+      case 'azimuth-cli':
+        csvLine = `${patp},${p},${shipType},${patpParent},`;
+      case 'bridge':
+        csvLine = `${i},${patp},`;
+    }
     //see if we have a wallet to get the master from
     let masterTicket = '';
     let wallet =  argv.useWalletFiles ? wallets[patp] : null;
@@ -91,7 +115,16 @@ exports.handler = async function (argv)
     {
       networkKeyfileContents = files.readLines(workDir, networkKeyfileName)[0];
     }
-    csvLine += `${masterTicket},${networkKeyfileContents},`;
+
+    switch(argv.outputFormat) {
+      case 'azimuth-cli':
+        csvLine += `${masterTicket},${networkKeyfileContents},`;
+        break;
+      case 'bridge':
+        csvLine += `https://bridge.urbit.org/#${masterTicket.slice(1)}-${patp.slice(1)},${p},${masterTicket}`;
+        break;
+    }
+
 
     //use azimuth
     if(source == 'azimuth'){
@@ -100,7 +133,13 @@ exports.handler = async function (argv)
       const ownerAddress = await ajs.azimuth.getOwner(ctx.contracts, p);
       const spawnProxyAddress = await ajs.azimuth.getSpawnProxy(ctx.contracts, p);
       const managementProxyAddress = ''; //does not work yet: await ajs.azimuth.getManagementProxy(ctx.contracts, p);
-      csvLine += `${dominion},${ownerAddress},${spawnProxyAddress},${managementProxyAddress},`;
+
+      switch(argv.outputFormat){
+        case 'azimuth-cli':
+          csvLine += `${dominion},${ownerAddress},${spawnProxyAddress},${managementProxyAddress},`;
+          break;
+      }
+
     
       //try to get the transaction receipts
       let spawnTransaction = tryGetTransactionHash(patp, workDir, 'spawn');
@@ -108,7 +147,13 @@ exports.handler = async function (argv)
       let spawnProxyTransaction = tryGetTransactionHash(patp, workDir, 'spawnproxy');
       let networkkeyTransaction = tryGetTransactionHash(patp, workDir, 'networkkey');
       let transferTransaction = tryGetTransactionHash(patp, workDir, 'transfer');
-      csvLine += `${spawnTransaction},${managementProxyTransaction},${spawnProxyTransaction},${networkkeyTransaction},${transferTransaction}`;
+
+      switch(argv.outputFormat){
+        case 'azimuth-cli':
+          csvLine += `${spawnTransaction},${managementProxyTransaction},${spawnProxyTransaction},${networkkeyTransaction},${transferTransaction}`;
+          break;
+      }
+
     }
     //L2 roller
     else{
@@ -118,7 +163,13 @@ exports.handler = async function (argv)
       const ownerAddress = pointInfo.ownership.owner.address;
       const spawnProxyAddress = pointInfo.ownership.spawnProxy.address;
       const managementProxyAddress = pointInfo.ownership.managementProxy.address;
-      csvLine += `${dominion},${ownerAddress},${spawnProxyAddress},${managementProxyAddress},`;
+
+      switch(argv.outputFormat){
+        case 'azimuth-cli':
+          csvLine += `${dominion},${ownerAddress},${spawnProxyAddress},${managementProxyAddress},`;
+          break;
+      }
+
 
       //try to get the transaction receipts
       let spawnTransaction = tryGetTransactionHashL2(patp, workDir, 'spawn');
@@ -126,7 +177,13 @@ exports.handler = async function (argv)
       let spawnProxyTransaction = tryGetTransactionHashL2(patp, workDir, 'setSpawnProxy');
       let networkkeyTransaction = tryGetTransactionHashL2(patp, workDir, 'configureKeys');
       let transferTransaction = tryGetTransactionHashL2(patp, workDir, 'transferPoint');
-      csvLine += `${spawnTransaction},${managementProxyTransaction},${spawnProxyTransaction},${networkkeyTransaction},${transferTransaction}`;
+
+      switch(argv.outputFormat){
+        case 'azimuth-cli':
+          csvLine += `${spawnTransaction},${managementProxyTransaction},${spawnProxyTransaction},${networkkeyTransaction},${transferTransaction}`;
+          break;
+      }
+
     }
     csvLines.push(csvLine);
   }
