@@ -24,7 +24,7 @@ exports.builder = (yargs) =>{
     conflicts: ['points-file', 'use-wallet-files']
   });
   yargs.option('use-wallet-files',{
-    describe: `Use the wallet JSON files in the current work directory for the points and the network keys, will only generetate the network key file. The wallet will have to have been generated with the --generate-network-keys set to true (default).`,
+    describe: `Use the wallet JSON files in the current work directory for the points and the network keys, will only generate the network key file. The wallet will have to have been generated with the --generate-network-keys set to true (default).`,
     type: 'boolean',
     conflicts: ['points-file', 'points']
   });
