@@ -78,6 +78,7 @@ For the full documentation, please install the cli and explore the commands and 
    * `management-proxy` - Sets the management proxy address for the points.
    * `network-key` - Sets the network keys for the points, which is required to be able to boot the Urbit.
    * `transfer` - Transfers the point to a target address or the wallet files. 
+   * `transfer-proxy` - Sets the transfer proxy address for the points.
 
 ### Examples
 #### Spawn, Set Network Keys, and Transfer to Master Ticket on Azimuth (L1)
