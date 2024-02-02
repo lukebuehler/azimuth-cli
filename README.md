@@ -73,11 +73,13 @@ For the full documentation, please install the cli and explore the commands and 
    * `spawn-proxy` - Sets the spawn-proxy address for the points.
    * `network-key` - Sets the network keys for the points, which is required to be able to boot the Urbit.
    * `transfer` - Transfers the point to a target address or the wallet files. 
+   * `transfer-proxy` - Sets the transfer proxy address for the points.
  * `modify-l2` - Modifies the state of one or more points via a L2 roller. The roller then submits the changes to the L2 Ethereum contract. Any point modified via this command, needs to be on L2.
    * `spawn` - Spawns multiple points to the supplied address. The galaxy or star that spawns needs to be on L2 or the spawn proxy needs to be on L2.
    * `management-proxy` - Sets the management proxy address for the points.
    * `network-key` - Sets the network keys for the points, which is required to be able to boot the Urbit.
    * `transfer` - Transfers the point to a target address or the wallet files. 
+   * `transfer-proxy` - Sets the transfer proxy address for the points.
 
 ### Examples
 #### Spawn, Set Network Keys, and Transfer to Master Ticket on Azimuth (L1)
