@@ -56,13 +56,18 @@ function createClient(argv){
   }
   var client = new JSONRPCClient(async function (jsonRPCRequest)
   {
-    //TODO: add try catch, check for 200 response (see https://www.npmjs.com/package/json-rpc-2.0), show error codes
-
-    //console.log(JSON.stringify(jsonRPCRequest));
-    var response = await axios.post(rollerUrl, JSON.stringify(jsonRPCRequest));
-    const jsonRPCResponse = response.data;
-    //console.log(jsonRPCResponse)
-    client.receive(jsonRPCResponse)
+    try {
+      //console.log(JSON.stringify(jsonRPCRequest));
+      var response = await axios.post(rollerUrl, JSON.stringify(jsonRPCRequest));
+      if (response.status === 200) {
+        const jsonRPCResponse = response.data;
+        client.receive(jsonRPCResponse);
+      } else {
+        console.error(`Received non-200 response: ${response.status}`);
+      }
+    } catch(error) {
+      console.error('Error sending request:', error.message);
+    }
   }, nextId);
   return client;
 }
