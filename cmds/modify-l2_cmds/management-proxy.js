@@ -47,9 +47,7 @@ exports.handler = async function (argv)
       continue;
     }
 
-    //the proxy type must be 'own', indicating that the signing address is the same as the point owner, 
-    // bc only the point owner can set the mgmt proxy
-    if((await rollerApi.getManagementProxyType(rollerClient, patp, signingAddress)) != 'own'){
+    if(!(await rollerApi.isOwner(rollerClient, patp, signingAddress))) {
       console.log(`Cannot set mgmt. proxy for ${patp}, must be owner.`);
       continue;
     }

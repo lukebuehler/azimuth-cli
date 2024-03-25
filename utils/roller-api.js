@@ -339,14 +339,37 @@ async function getTransferProxyType(client, point, signingAddress){
   return undefined;
 }
 
-//TODO: add
-// isOwner
-// isManagementProxy
-// isSpawnProxy
-// isTransferProxy
-// canConfigureKeys (either owner or management proxy)
-// canTransfer (either owner or transfer proxy)
-// [-> then replace checks in modify-l2 commands to use these functions]
+async function isOwner(client, point, address) {
+  const pointInfo = await getPoint(client, point);
+  return ajsUtils.addressEquals(pointInfo.ownership.owner.address, address);
+}
+
+async function isManagementProxy(client, point, address) {
+  const pointInfo = await getPoint(client, point);
+  return ajsUtils.addressEquals(pointInfo.ownership.managementProxy.address, address);
+}
+
+async function isSpawnProxy(client, point, address) {
+  const pointInfo = await getPoint(client, point);
+  return ajsUtils.addressEquals(pointInfo.ownership.spawnProxy.address, address);
+}
+
+async function isTransferProxy(client, point, address) {
+  const pointInfo = await getPoint(client, point);
+  return ajsUtils.addressEquals(pointInfo.ownership.transferProxy.address, address);
+}
+
+async function canConfigureKeys(client, point, address) {
+  return await isOwner(client, point, address) || await isManagementProxy(client, point, address);
+}
+
+async function canTransfer(client, point, address) {
+  return await isOwner(client, point, address) || await isTransferProxy(client, point, address);
+}
+
+async function canSpawn(client, point, address) {
+  return await isOwner(client, point, address) || await isSpawnProxy(client, point, address);
+}
 
 module.exports = {
   selectDataSource,
@@ -370,6 +393,14 @@ module.exports = {
 
   getManagementProxyType,
   getSpawnProxyType,
-  getTransferProxyType
+  getTransferProxyType,
+
+  isOwner,
+  isManagementProxy,
+  isSpawnProxy,
+  isTransferProxy,
+  canConfigureKeys,
+  canTransfer,
+  canSpawn
 }
 

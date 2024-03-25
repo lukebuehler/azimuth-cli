@@ -38,33 +38,31 @@ exports.handler = async function (argv)
       ? argv.address 
       : argv.useWalletFiles 
       ? wallet.ownership.keys.address :
-      null; //fail
+      null; // fail
     targetAddress = validate.address(targetAddress, true);
 
     let pointInfo = await rollerApi.getPoint(rollerClient, patp);
-    if(pointInfo.dominion != 'l2'){
+
+    if(pointInfo.dominion != 'l2') {
       console.log(`This point in not on L2, please use the L1 modify command.`);
       continue;
     }
-
-    if(ajsUtils.addressEquals(pointInfo.ownership.owner.address, targetAddress)){
+    if(ajsUtils.addressEquals(pointInfo.ownership.owner.address, targetAddress)) {
       console.log(`Target address ${targetAddress} is already owner of ${patp}.`);
       continue;
     }
-
-    //use the transfer proxy check to see if the singing address is either owner or transfer proxy
-    if(!(await rollerApi.getTransferProxyType(rollerClient, patp, signingAddress))){
-      console.log(`Signing address ${signingAddress} must be owner or transfer proxy.`);
+    if(!(await rollerApi.canTransfer(rollerClient, patp, signingAddress))) {
+      console.log(`Signing address ${signingAddress} must be owner or transfer proxy to transfer ${patp}.`);
       continue;
-    }
+    }    
 
-    //create and send tx
+    // create and send tx
     var receipt = await rollerApi.transferPoint(rollerClient, patp, argv.reset, targetAddress, signingAddress, privateKey);
     console.log("Tx hash: "+receipt.hash);
 
     let receiptFileName = patp.substring(1)+`-receipt-L2-${receipt.type}.json`;
     files.writeFile(workDir, receiptFileName, receipt);
-  } //end for each point
+  } // end for each point
   
   process.exit(0);
 };
