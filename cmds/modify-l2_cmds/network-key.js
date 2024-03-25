@@ -58,7 +58,7 @@ exports.handler = async function (argv)
       process.exit(1);
     }
 
-    if(!(await rollerApi.getManagementProxyType(rollerClient, patp, signingAddress))){
+    if(!(await rollerApi.canConfigureKeys(rollerClient, patp, signingAddress))){
       console.log(`Cannot set network keys for ${patp}, must be owner or management proxy.`);
       continue;
     }

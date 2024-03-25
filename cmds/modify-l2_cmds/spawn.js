@@ -33,10 +33,14 @@ exports.handler = async function (argv)
     console.log(`Trying to spawn ${patp} (${p}).`);
 
     const parentPoint = ob.sein(patp);
-
     const parentPointInfo = await rollerApi.getPoint(rollerClient, parentPoint);
-    if(parentPointInfo.dominion == 'l1'){
+    
+    if(parentPointInfo.dominion == 'l1') {
       console.log(`The parent, ${parentPoint}, of this point, ${patp}, cannont spawn on L2, please transfer it to L2 or set the spawn proxy to L2.`);
+      continue;
+    }
+    if (!(await rollerApi.canSpawn(rollerClient, parentPoint, signingAddress))) {
+      console.log(`Cannot spawn ${patp} from ${parentPoint}, must be owner or spawn proxy.`);
       continue;
     }
 
