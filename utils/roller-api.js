@@ -56,13 +56,18 @@ function createClient(argv){
   }
   var client = new JSONRPCClient(async function (jsonRPCRequest)
   {
-    //TODO: add try catch, check for 200 response (see https://www.npmjs.com/package/json-rpc-2.0), show error codes
-
-    //console.log(JSON.stringify(jsonRPCRequest));
-    var response = await axios.post(rollerUrl, JSON.stringify(jsonRPCRequest));
-    const jsonRPCResponse = response.data;
-    //console.log(jsonRPCResponse)
-    client.receive(jsonRPCResponse)
+    try {
+      //console.log(JSON.stringify(jsonRPCRequest));
+      var response = await axios.post(rollerUrl, JSON.stringify(jsonRPCRequest));
+      if (response.status === 200) {
+        const jsonRPCResponse = response.data;
+        client.receive(jsonRPCResponse);
+      } else {
+        console.error(`Received non-200 response: ${response.status}`);
+      }
+    } catch(error) {
+      console.error('Error sending request:', error.message);
+    }
   }, nextId);
   return client;
 }
@@ -339,14 +344,37 @@ async function getTransferProxyType(client, point, signingAddress){
   return undefined;
 }
 
-//TODO: add
-// isOwner
-// isManagementProxy
-// isSpawnProxy
-// isTransferProxy
-// canConfigureKeys (either owner or management proxy)
-// canTransfer (either owner or transfer proxy)
-// [-> then replace checks in modify-l2 commands to use these functions]
+async function isOwner(client, point, address) {
+  const pointInfo = await getPoint(client, point);
+  return ajsUtils.addressEquals(pointInfo.ownership.owner.address, address);
+}
+
+async function isManagementProxy(client, point, address) {
+  const pointInfo = await getPoint(client, point);
+  return ajsUtils.addressEquals(pointInfo.ownership.managementProxy.address, address);
+}
+
+async function isSpawnProxy(client, point, address) {
+  const pointInfo = await getPoint(client, point);
+  return ajsUtils.addressEquals(pointInfo.ownership.spawnProxy.address, address);
+}
+
+async function isTransferProxy(client, point, address) {
+  const pointInfo = await getPoint(client, point);
+  return ajsUtils.addressEquals(pointInfo.ownership.transferProxy.address, address);
+}
+
+async function canConfigureKeys(client, point, address) {
+  return await isOwner(client, point, address) || await isManagementProxy(client, point, address);
+}
+
+async function canTransfer(client, point, address) {
+  return await isOwner(client, point, address) || await isTransferProxy(client, point, address);
+}
+
+async function canSpawn(client, point, address) {
+  return await isOwner(client, point, address) || await isSpawnProxy(client, point, address);
+}
 
 module.exports = {
   selectDataSource,
@@ -370,6 +398,14 @@ module.exports = {
 
   getManagementProxyType,
   getSpawnProxyType,
-  getTransferProxyType
+  getTransferProxyType,
+
+  isOwner,
+  isManagementProxy,
+  isSpawnProxy,
+  isTransferProxy,
+  canConfigureKeys,
+  canTransfer,
+  canSpawn
 }
 
